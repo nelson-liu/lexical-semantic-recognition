@@ -1,0 +1,1 @@
+from streusle_tagger.dataset_readers.streusle import StreusleDatasetReader

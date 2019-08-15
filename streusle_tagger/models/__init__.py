@@ -1,0 +1,1 @@
+from streusle_tagger.models.streusle_tagger import StreusleTagger
