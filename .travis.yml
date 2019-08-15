@@ -1,5 +1,5 @@
 sudo: false
-dist: trusty
+dist: xenial
 language: python
 
 cache:
@@ -23,7 +23,5 @@ branches:
     - master
 
 install: source build_tools/travis/install.sh
-script:
-  - python -c "import torch" # hack to fix failing test due to static tls loading
-  - bash build_tools/travis/test_script.sh
+script: bash build_tools/travis/test_script.sh
 after_success: source build_tools/travis/after_success.sh
