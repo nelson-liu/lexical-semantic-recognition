@@ -81,6 +81,7 @@ class StreusleDatasetReader(DatasetReader):
         fields: Dict[str, Field] = {"tokens": text_field}
 
         # Add "tag label" to instance
-        fields['tags'] = SequenceLabelField(streusle_lextags, text_field,
-                                            self.label_namespace)
+        if streusle_lextags is not None:
+            fields['tags'] = SequenceLabelField(streusle_lextags, text_field,
+                                                self.label_namespace)
         return Instance(fields)
