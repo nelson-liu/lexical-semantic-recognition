@@ -15,4 +15,4 @@ class StreusleTaggerPredictor(Predictor):
         Expects JSON that looks like ``{"tokens": "[..., ..., ...]"}``.
         """
         tokens = json_dict["tokens"]
-        return self._dataset_reader.text_to_instance([tokens])
+        return self._dataset_reader.text_to_instance(tokens)
