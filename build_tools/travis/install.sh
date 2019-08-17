@@ -48,3 +48,6 @@ source activate testenv
 echo "Installing requirements"
 pip install --upgrade pip --quiet
 pip install -r requirements.txt --quiet
+
+# Install StanfordNLP models
+python -c "import stanfordnlp; stanfordnlp.download('en', force=True)"
