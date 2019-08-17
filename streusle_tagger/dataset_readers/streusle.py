@@ -2,14 +2,14 @@ from typing import Dict, List
 import json
 import logging
 
-from overrides import overrides
-
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
-from allennlp.data.fields import Field, TextField, SequenceLabelField
+from allennlp.data.fields import Field, MetadataField, TextField, SequenceLabelField
 from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
 from allennlp.data.tokenizers import Token
+from overrides import overrides
+import stanfordnlp
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -29,13 +29,20 @@ class StreusleDatasetReader(DatasetReader):
         Whether or not instances can be consumed lazily.
     label_namespace: ``str``, optional (default=``labels``)
         Specifies the namespace for the chosen ``tag_label``.
+    use_predicted_upos: ``bool``, optional (default=``False``)
+        Use predicted UPOS tags from StanfordNLP instead of the gold
+        UPOS tags in the STREUSLE data.
     """
     def __init__(self,
                  token_indexers: Dict[str, TokenIndexer] = None,
                  label_namespace: str = "labels",
+                 use_predicted_upos: bool = False,
                  lazy: bool = False) -> None:
         super().__init__(lazy=lazy)
         self._token_indexers = token_indexers or {'tokens': SingleIdTokenIndexer()}
+        self._use_predicted_upos = use_predicted_upos
+        # We initialize this in text_to_instance, if necessary.
+        self._upos_predictor = None
         self.label_namespace = label_namespace
 
     @overrides
@@ -49,14 +56,18 @@ class StreusleDatasetReader(DatasetReader):
             for instance in tagging_data:
                 # Get the tokens
                 tokens = [x["word"] for x in instance["toks"]]
+                # Get their associated upos
+                upos_tags = [x["upos"] for x in instance["toks"]]
                 # Get their associated lextag
                 labels = [x["lextag"] for x in instance["toks"]]
-                yield self.text_to_instance(tokens,
-                                            labels)
+                yield self.text_to_instance(tokens=tokens,
+                                            upos_tags=upos_tags,
+                                            streusle_lextags=labels)
 
     @overrides
     def text_to_instance(self, # type: ignore
                          tokens: List[str],
+                         upos_tags: List[str] = None,
                          streusle_lextags: List[str] = None) -> Instance:
         """
         We take `pre-tokenized` input here, because we don't have a tokenizer in this class.
@@ -65,6 +76,10 @@ class StreusleDatasetReader(DatasetReader):
         ----------
         tokens : ``List[str]``, required.
             The tokens in a given sentence.
+        upos_tags : ``List[str]``, optional, (default = None).
+            The upos_tags for the tokens in a given sentence. If None,
+            we use StanfordNLP to predict them. If self._use_predicted_upos,
+            we use StanfordNLP to predict them (ignoring any provided here).
         streusle_lextags : ``List[str]``, optional, (default = None).
             The STREUSLE lextags associated with a token.
 
@@ -80,6 +95,16 @@ class StreusleDatasetReader(DatasetReader):
         text_field = TextField([Token(x) for x in tokens], token_indexers=self._token_indexers)
         fields: Dict[str, Field] = {"tokens": text_field}
 
+        metadata = {"tokens": tokens}
+        if self._use_predicted_upos or upos_tags is None:
+            if self._upos_predictor is None:
+                self._upos_predictor = stanfordnlp.Pipeline(processors="tokenize,pos",
+                                                            tokenize_pretokenized=True)
+                doc = self._upos_predictor([tokens])
+                upos_tags = [word.upos for sent in doc.sentences for word in sent.words]
+        metadata["upos_tags"] = upos_tags
+
+        fields["metadata"] = MetadataField(metadata)
         # Add "tag label" to instance
         if streusle_lextags is not None:
             fields['tags'] = SequenceLabelField(streusle_lextags, text_field,
