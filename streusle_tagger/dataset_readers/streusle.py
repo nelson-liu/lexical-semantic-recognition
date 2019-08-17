@@ -98,10 +98,11 @@ class StreusleDatasetReader(DatasetReader):
         metadata = {"tokens": tokens}
         if self._use_predicted_upos or upos_tags is None:
             if self._upos_predictor is None:
+                # Initialize UPOS predictor.
                 self._upos_predictor = stanfordnlp.Pipeline(processors="tokenize,pos",
                                                             tokenize_pretokenized=True)
-                doc = self._upos_predictor([tokens])
-                upos_tags = [word.upos for sent in doc.sentences for word in sent.words]
+            doc = self._upos_predictor([tokens])
+            upos_tags = [word.upos for sent in doc.sentences for word in sent.words]
         # Check number of UPOS tags equals number of tokens.
         assert len(upos_tags) == len(tokens)
         metadata["upos_tags"] = upos_tags
