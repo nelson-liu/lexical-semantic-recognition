@@ -50,7 +50,7 @@ class TimestepConstrainedConditionalRandomField(ConditionalRandomField):
         tag_sequence = torch.Tensor(max_seq_length + 2, num_tags + 2)
 
         for prediction, prediction_mask, prediction_constraint_mask in zip(logits, mask, constraint_mask):
-            prediction_constraint_mask = torch.nn.Parameter(constraint_mask, requires_grad=False)
+            prediction_constraint_mask = torch.nn.Parameter(prediction_constraint_mask, requires_grad=False)
             # Augment transitions matrix with start and end transitions
             transitions = torch.Tensor(num_tags + 2, num_tags + 2).fill_(-10000.)
             # Apply transition constraints
