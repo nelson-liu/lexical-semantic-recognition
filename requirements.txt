@@ -1,4 +1,6 @@
 git+git://github.com/allenai/allennlp.git@770791a2045d960beaf4e64db867f51e6021afb6
+stanfordnlp
+
 # Run tests
 pytest
 
