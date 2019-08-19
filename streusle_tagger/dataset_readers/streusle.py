@@ -1,15 +1,15 @@
-from typing import Dict, List
-import json
 import logging
+from typing import Dict, List
 
+import stanfordnlp
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.fields import Field, MetadataField, TextField, SequenceLabelField
 from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
 from allennlp.data.tokenizers import Token
+from conllulex2json import load_sents
 from overrides import overrides
-import stanfordnlp
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -58,7 +58,7 @@ class StreusleDatasetReader(DatasetReader):
         logger.info("Reading instances from lines in file at: %s", file_path)
 
         with open(file_path, 'r') as tagging_file:
-            tagging_data = json.load(tagging_file)
+            tagging_data = load_sents(tagging_file)
             for instance in tagging_data:
                 # Get the tokens
                 tokens = [x["word"] for x in instance["toks"]]
