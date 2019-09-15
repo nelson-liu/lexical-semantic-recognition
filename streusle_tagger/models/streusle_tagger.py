@@ -82,7 +82,8 @@ class StreusleTagger(Model):
             output_dim = encoder_output_dim
         self.tag_projection_layer = TimeDistributed(Linear(output_dim,
                                                            self.num_tags))
-        labels = self.vocab.get_index_to_token_vocabulary(label_namespace)
+        self._label_namespace = label_namespace
+        labels = self.vocab.get_index_to_token_vocabulary(self._label_namespace)
         constraints = streusle_allowed_transitions(labels)
         self.include_start_end_transitions = include_start_end_transitions
         self.crf = ConditionalRandomField(
