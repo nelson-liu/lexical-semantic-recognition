@@ -156,8 +156,8 @@ class StreusleTagger(Model):
         -------
         An output dictionary consisting of:
 
-        logits : ``torch.FloatTensor``
-            The logits that are the output of the ``tag_projection_layer``
+        constrained_logits : ``torch.FloatTensor``
+            The constrained logits that are the output of the ``tag_projection_layer``
         mask : ``torch.LongTensor``
             The text field mask for the input tokens
         tags : ``List[List[int]]``
@@ -199,16 +199,16 @@ class StreusleTagger(Model):
         # Just get the tags and ignore the score.
         predicted_tags = [x for x, y in best_paths]
 
-        output = {"logits": logits, "mask": mask, "tags": predicted_tags}
+        output = {"constrained_logits": constrained_logits, "mask": mask, "tags": predicted_tags}
 
         if tags is not None:
             # Add negative log-likelihood as loss
-            log_likelihood = self.crf(logits, tags, mask)
+            log_likelihood = self.crf(constrained_logits, tags, mask)
             output["loss"] = -log_likelihood
 
             # Represent viterbi tags as "class probabilities" that we can
             # feed into the metrics
-            class_probabilities = logits * 0.
+            class_probabilities = constrained_logits * 0.
             for i, instance_tags in enumerate(predicted_tags):
                 for j, tag_id in enumerate(instance_tags):
                     class_probabilities[i, j, tag_id] = 1
