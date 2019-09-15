@@ -13,6 +13,11 @@ from allennlp.nn import InitializerApplicator, RegularizerApplicator
 import allennlp.nn.util as util
 from allennlp.training.metrics import CategoricalAccuracy
 
+ALL_UPOS = {'X', 'INTJ', 'VERB', 'ADV', 'CCONJ', 'PUNCT', 'ADP',
+            'NOUN', 'SYM', 'ADJ', 'PROPN', 'DET', 'PART', 'PRON', 'SCONJ', 'NUM', 'AUX'}
+ALL_LEXCATS = {'N', 'INTJ', 'INF.P', 'V', 'AUX', 'PP', 'PUNCT',
+               'POSS', 'X', 'PRON.POSS', 'SYM', 'PRON', 'SCONJ',
+               'NUM', 'DISC', 'ADV', 'CCONJ', 'P', 'ADJ', 'DET', 'INF'}
 
 @Model.register("streusle_tagger")
 class StreusleTagger(Model):
@@ -96,11 +101,66 @@ class StreusleTagger(Model):
                                    "encoder output dim", "feedforward input dim")
         initializer(self)
 
+    def get_upos_allowed_lexcats(self):
+        def is_allowed(upos, lc):
+            if lc.endswith('!@'):
+                return True
+            if upos == lc:
+                return True
+            if (upos, lc) in {('NOUN','N'),('PROPN','N'),('VERB','V'),
+                              ('ADP','P'),('ADV','P'),('SCONJ','P'),
+                              ('ADP','DISC'),('ADV','DISC'),('SCONJ','DISC'),
+                              ('PART','POSS')}:
+                return True
+            # First check below was originally (xpos=='TO'),
+            # but this was transformed to (upos=='PART' and tok['lemma']='to'),
+            # which was finally transformed to (upos=='PART' and True)
+            if (upos=='PART' and True) and lc.startswith('INF'):
+                return True
+            if (upos=='PART' and True) != lc.startswith('INF'):
+                if not (upos=='SCONJ' and True):
+                    return False
+            if (upos in ('NOUN', 'PROPN')) != (lc=='N'):
+                if not (upos in ('SYM', 'X') or (lc in ('PRON', 'DISC'))):
+                    return False
+            if (upos=='AUX') != (lc=='AUX'):
+                # Check below was originally tok['lemma']=='be' and lc=='V'
+                if not (True and lc=='V'):
+                    return False
+            if (upos=='VERB') != (lc=='V'):
+                if lc == 'ADJ':
+                    print('Word treated as VERB in UD, ADJ for supersenses:', upos, lc)
+                else:
+                    # Check below was originally tok['lemma']=='be' and lc=='V'
+                    if not (True and lc=='V'):
+                        return False
+            if upos=='PRON':
+                if not (lc=='PRON' or lc=='PRON.POSS'):
+                    return False
+            if lc=='ADV':
+                if not (upos=='ADV' or upos=='PART'):
+                    return False
+            if upos=='ADP' and lc=='CCONJ':
+                # Check below was originally tok['lemma']=='versus'
+                if not (True):
+                    return False
+            return True
+
+        allowed_combinations = {}
+        for lexcat in ALL_LEXCATS:
+            for universal_pos in ALL_UPOS:
+                if is_allowed(universal_pos, lexcat):
+                    if universal_pos not in allowed_combinations:
+                        allowed_combinations[universal_pos] = set()
+                    allowed_combinations[universal_pos].add(lexcat)
+        return allowed_combinations
+
     @overrides
     def forward(self,  # type: ignore
                 tokens: Dict[str, torch.LongTensor],
                 tags: torch.LongTensor = None,
                 # pylint: disable=unused-argument
+                metadata: List[Dict[str, Any]] = None,
                 **kwargs) -> Dict[str, torch.Tensor]:
         # pylint: disable=arguments-differ
         """
