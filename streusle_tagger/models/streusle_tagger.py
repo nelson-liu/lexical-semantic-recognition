@@ -202,8 +202,10 @@ class StreusleTagger(Model):
             which knows how to combine different word representations into a single vector per
             token in your input.
         tags : ``torch.LongTensor``, optional (default = ``None``)
-            A torch tensor representing the sequence of integer gold class labels of shape
+            A torch tensor representing the sequence of integer gold lextags of shape
             ``(batch_size, num_tokens)``.
+        metadata : ``List[Dict[str, Any]]``, optional, (default = None)
+            Additional information about the example.
 
         Returns
         -------
@@ -220,6 +222,7 @@ class StreusleTagger(Model):
         """
         embedded_text_input = self.text_field_embedder(tokens)
         mask = util.get_text_field_mask(tokens)
+        batch_size, max_sequence_length = mask.size()
 
         if self.dropout:
             embedded_text_input = self.dropout(embedded_text_input)
@@ -236,7 +239,18 @@ class StreusleTagger(Model):
             encoded_text = self.feedforward(encoded_text)
 
         logits = self.tag_projection_layer(encoded_text)
-        best_paths = self.crf.viterbi_tags(logits, mask)
+
+        # List of length (batch_size,), where each inner list is a list of
+        # the UPOS tags for the associated token sequence.
+        batch_upos_tags = [instance_metadata["upos_tags"] for instance_metadata in metadata]
+
+        # Get a (batch_size, max_sequence_length, num_tags) mask with "1" in
+        # tags that are allowed for a given UPOS, and "0" for tags that are
+        # disallowed for a given UPOS.
+        batch_upos_constraint_mask = self.get_upos_constraint_mask(batch_upos_tags=batch_upos_tags)
+        constrained_logits = logits * batch_upos_constraint_mask
+
+        best_paths = self.crf.viterbi_tags(constrained_logits, mask)
 
         # Just get the tags and ignore the score.
         predicted_tags = [x for x, y in best_paths]
@@ -278,6 +292,41 @@ class StreusleTagger(Model):
         metrics_to_return = {metric_name: metric.get_metric(reset) for
                              metric_name, metric in self.metrics.items()}
         return metrics_to_return
+
+    def get_upos_constraint_mask(self,
+                                 batch_upos_tags: List[List[str]]):
+        """
+        Given POS tags for a batch, return a mask of shape
+        (batch_size, max_sequence_length, num_tags) mask with "1" in
+        tags that are allowed for a given UPOS, and "0" for tags that are
+        disallowed for a given UPOS.
+
+        Parameters
+        ----------
+        batch_upos_tags: ``List[List[str]]``, required
+            UPOS tags for a batch.
+
+        Returns
+        -------
+        ``Tensor``, shape (batch_size, max_sequence_length, num_tags)
+            A mask over the logits, with 1 in positions where a tag is allowed
+            for its UPOS and 0 in positions where a tag is allowed for its UPOS.
+        """
+        # TODO(nfliu): this is pretty inefficient, maybe there's someway to make it batched?
+        # Shape: (batch_size, max_sequence_length, num_tags)
+        upos_constraint_mask = torch.zeros(len(batch_upos_tags),
+                                           len(max(batch_upos_tags, key=len)),
+                                           self.num_tags)
+        # Iterate over the batch
+        for example_upos_tags, example_constraint_mask in zip(
+                batch_upos_tags, upos_constraint_mask):
+            # Shape of example_constraint_mask: (max_sequence_length, num_tags)
+            # Iterate over the upos tags for the example
+            for timestep_upos_tag, timestep_constraint_mask in zip(  # pylint: disable=unused-variable
+                    example_upos_tags, example_constraint_mask):
+                # Shape of timestep_constraint_mask: (num_tags,)
+                timestep_constraint_mask = self._upos_to_label_mask[timestep_upos_tag]
+        return upos_constraint_mask
 
 def streusle_allowed_transitions(labels: Dict[int, str]) -> List[Tuple[int, int]]:
     """
