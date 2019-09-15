@@ -94,7 +94,8 @@ class StreusleTagger(Model):
         self._upos_to_label_mask: Dict[str, torch.Tensor] = {}
         for upos in ALL_UPOS:
             # Shape: (num_labels,)
-            upos_label_mask = torch.zeros(len(labels))
+            upos_label_mask = torch.zeros(len(labels),
+                                          device=next(self.tag_projection_layer.parameters()).device)
             # Go through the labels and indices and fill in the values that are allowed.
             for label_index, label in labels.items():
                 if len(label.split("-")) == 1:
@@ -259,7 +260,8 @@ class StreusleTagger(Model):
         # Shape: (batch_size, max_sequence_length, num_tags)
         upos_constraint_mask = torch.zeros(len(batch_upos_tags),
                                            len(max(batch_upos_tags, key=len)),
-                                           self.num_tags)
+                                           self.num_tags,
+                                           device=next(self.tag_projection_layer.parameters()).device)
         # Iterate over the batch
         for example_upos_tags, example_constraint_mask in zip(
                 batch_upos_tags, upos_constraint_mask):
