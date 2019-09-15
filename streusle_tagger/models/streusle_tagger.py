@@ -266,14 +266,15 @@ class StreusleTagger(Model):
                                            self.num_tags,
                                            device=next(self.tag_projection_layer.parameters()).device)
         # Iterate over the batch
-        for example_upos_tags, example_constraint_mask in zip(
-                batch_upos_tags, upos_constraint_mask):
+        for example_index, example_upos_tags in enumerate(
+                batch_upos_tags):
             # Shape of example_constraint_mask: (max_sequence_length, num_tags)
             # Iterate over the upos tags for the example
-            for timestep_upos_tag, timestep_constraint_mask in zip(  # pylint: disable=unused-variable
-                    example_upos_tags, example_constraint_mask):
+            example_constraint_mask = upos_constraint_mask[example_index]
+            for timestep_index, timestep_upos_tag in enumerate(  # pylint: disable=unused-variable
+                    example_upos_tags):
                 # Shape of timestep_constraint_mask: (num_tags,)
-                timestep_constraint_mask = self._upos_to_label_mask[timestep_upos_tag]
+                example_constraint_mask[timestep_index] = self._upos_to_label_mask[timestep_upos_tag]
         return upos_constraint_mask
 
 def get_upos_allowed_lexcats():
