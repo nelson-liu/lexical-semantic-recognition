@@ -330,7 +330,9 @@ def get_upos_allowed_lexcats():
                     allowed_combinations[universal_pos] = set()
                 allowed_combinations[universal_pos].add(lexcat)
     logger.info("Allowed lexcats for each UPOS:")
-    logger.info(json.dumps(allowed_combinations, indent=2))
+    json_allowed_combinations = {upos: sorted(list(lexcats)) for
+                                 upos, lexcats in allowed_combinations.items()}
+    logger.info(json.dumps(json_allowed_combinations, indent=2))
     return allowed_combinations
 
 def streusle_allowed_transitions(labels: Dict[int, str]) -> List[Tuple[int, int]]:
