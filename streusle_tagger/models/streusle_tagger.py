@@ -85,6 +85,31 @@ class StreusleTagger(Model):
         self._label_namespace = label_namespace
         labels = self.vocab.get_index_to_token_vocabulary(self._label_namespace)
         constraints = streusle_allowed_transitions(labels)
+
+        # Get a dict with a mapping from UPOS to allowed LEXCAT here.
+        self._upos_to_allowed_lexcats: Dict[str, Set[str]] = self.get_upos_allowed_lexcats()
+        # Use labels and the upos_to_allowed_lexcats to get a dict with
+        # a mapping from UPOS to a mask with 1 at allowed label indices and 0 at
+        # disallowed label indices.
+        self._upos_to_label_mask: Dict[str, Tensor] = {}
+        for upos in ALL_UPOS:
+            # Shape: (num_labels,)
+            upos_label_mask = torch.zeros(len(labels))
+            # Go through the labels and indices and fill in the values that are allowed.
+            for label_index, label in labels.items():
+                if len(label.split("-")) == 1:
+                    upos_label_mask[label_index] = 1
+                    continue
+                label_lexcat = label.split("-")[1]
+                if not label.startswith("O-") and not label.startswith("o-"):
+                    # Label does not start with O-/o-, always allowed.
+                    upos_label_mask[label_index] = 1
+                elif label_lexcat in self._upos_to_allowed_lexcats[upos]:
+                    # Label starts with O-/o-, but the lexcat is in allowed
+                    # lexcats for the current upos.
+                    upos_label_mask[label_index] = 1
+            self._upos_to_label_mask[upos] = upos_label_mask
+
         self.include_start_end_transitions = include_start_end_transitions
         self.crf = ConditionalRandomField(
                 self.num_tags, constraints,
