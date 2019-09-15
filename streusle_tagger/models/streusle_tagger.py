@@ -1,4 +1,6 @@
 from typing import Any, Dict, List, Optional, Set, Tuple
+import json
+import logging
 
 from overrides import overrides
 import torch
@@ -18,6 +20,7 @@ ALL_UPOS = {'X', 'INTJ', 'VERB', 'ADV', 'CCONJ', 'PUNCT', 'ADP',
 ALL_LEXCATS = {'N', 'INTJ', 'INF.P', 'V', 'AUX', 'PP', 'PUNCT',
                'POSS', 'X', 'PRON.POSS', 'SYM', 'PRON', 'SCONJ',
                'NUM', 'DISC', 'ADV', 'CCONJ', 'P', 'ADJ', 'DET', 'INF'}
+logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 @Model.register("streusle_tagger")
 class StreusleTagger(Model):
@@ -326,6 +329,8 @@ def get_upos_allowed_lexcats():
                 if universal_pos not in allowed_combinations:
                     allowed_combinations[universal_pos] = set()
                 allowed_combinations[universal_pos].add(lexcat)
+    logger.info("Allowed lexcats for each UPOS:")
+    logger.info(json.dumps(allowed_combinations, indent=2))
     return allowed_combinations
 
 def streusle_allowed_transitions(labels: Dict[int, str]) -> List[Tuple[int, int]]:
