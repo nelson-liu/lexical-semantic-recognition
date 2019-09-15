@@ -87,11 +87,11 @@ class StreusleTagger(Model):
         constraints = streusle_allowed_transitions(labels)
 
         # Get a dict with a mapping from UPOS to allowed LEXCAT here.
-        self._upos_to_allowed_lexcats: Dict[str, Set[str]] = self.get_upos_allowed_lexcats()
+        self._upos_to_allowed_lexcats: Dict[str, Set[str]] = get_upos_allowed_lexcats()
         # Use labels and the upos_to_allowed_lexcats to get a dict with
         # a mapping from UPOS to a mask with 1 at allowed label indices and 0 at
         # disallowed label indices.
-        self._upos_to_label_mask: Dict[str, Tensor] = {}
+        self._upos_to_label_mask: Dict[str, torch.Tensor] = {}
         for upos in ALL_UPOS:
             # Shape: (num_labels,)
             upos_label_mask = torch.zeros(len(labels))
@@ -127,67 +127,11 @@ class StreusleTagger(Model):
                                    "encoder output dim", "feedforward input dim")
         initializer(self)
 
-    def get_upos_allowed_lexcats(self):
-        def is_allowed(upos, lc):
-            if lc.endswith('!@'):
-                return True
-            if upos == lc:
-                return True
-            if (upos, lc) in {('NOUN','N'),('PROPN','N'),('VERB','V'),
-                              ('ADP','P'),('ADV','P'),('SCONJ','P'),
-                              ('ADP','DISC'),('ADV','DISC'),('SCONJ','DISC'),
-                              ('PART','POSS')}:
-                return True
-            # First check below was originally (xpos=='TO'),
-            # but this was transformed to (upos=='PART' and tok['lemma']='to'),
-            # which was finally transformed to (upos=='PART' and True)
-            if (upos=='PART' and True) and lc.startswith('INF'):
-                return True
-            if (upos=='PART' and True) != lc.startswith('INF'):
-                if not (upos=='SCONJ' and True):
-                    return False
-            if (upos in ('NOUN', 'PROPN')) != (lc=='N'):
-                if not (upos in ('SYM', 'X') or (lc in ('PRON', 'DISC'))):
-                    return False
-            if (upos=='AUX') != (lc=='AUX'):
-                # Check below was originally tok['lemma']=='be' and lc=='V'
-                if not (True and lc=='V'):
-                    return False
-            if (upos=='VERB') != (lc=='V'):
-                if lc == 'ADJ':
-                    print('Word treated as VERB in UD, ADJ for supersenses:', upos, lc)
-                else:
-                    # Check below was originally tok['lemma']=='be' and lc=='V'
-                    if not (True and lc=='V'):
-                        return False
-            if upos=='PRON':
-                if not (lc=='PRON' or lc=='PRON.POSS'):
-                    return False
-            if lc=='ADV':
-                if not (upos=='ADV' or upos=='PART'):
-                    return False
-            if upos=='ADP' and lc=='CCONJ':
-                # Check below was originally tok['lemma']=='versus'
-                if not (True):
-                    return False
-            return True
-
-        allowed_combinations = {}
-        for lexcat in ALL_LEXCATS:
-            for universal_pos in ALL_UPOS:
-                if is_allowed(universal_pos, lexcat):
-                    if universal_pos not in allowed_combinations:
-                        allowed_combinations[universal_pos] = set()
-                    allowed_combinations[universal_pos].add(lexcat)
-        return allowed_combinations
-
     @overrides
     def forward(self,  # type: ignore
                 tokens: Dict[str, torch.LongTensor],
                 tags: torch.LongTensor = None,
-                # pylint: disable=unused-argument
-                metadata: List[Dict[str, Any]] = None,
-                **kwargs) -> Dict[str, torch.Tensor]:
+                metadata: List[Dict[str, Any]] = None) -> Dict[str, torch.Tensor]:
         # pylint: disable=arguments-differ
         """
         Parameters
@@ -222,7 +166,6 @@ class StreusleTagger(Model):
         """
         embedded_text_input = self.text_field_embedder(tokens)
         mask = util.get_text_field_mask(tokens)
-        batch_size, max_sequence_length = mask.size()
 
         if self.dropout:
             embedded_text_input = self.dropout(embedded_text_input)
@@ -327,6 +270,61 @@ class StreusleTagger(Model):
                 # Shape of timestep_constraint_mask: (num_tags,)
                 timestep_constraint_mask = self._upos_to_label_mask[timestep_upos_tag]
         return upos_constraint_mask
+
+def get_upos_allowed_lexcats():
+    # pylint: disable=too-many-return-statements
+    def is_allowed(upos, lexcat):
+        if lexcat.endswith('!@'):
+            return True
+        if upos == lexcat:
+            return True
+        if (upos, lexcat) in {('NOUN', 'N'), ('PROPN', 'N'), ('VERB', 'V'),
+                              ('ADP', 'P'), ('ADV', 'P'), ('SCONJ', 'P'),
+                              ('ADP', 'DISC'), ('ADV', 'DISC'), ('SCONJ', 'DISC'),
+                              ('PART', 'POSS')}:
+            return True
+        # First check below was originally (xpos=='TO'),
+        # but this was transformed to (upos=='PART' and tok['lemma']='to'),
+        # which was finally transformed to (upos=='PART' and True)
+        if (upos == 'PART' and True) and lexcat.startswith('INF'):
+            return True
+        if (upos == 'PART' and True) != lexcat.startswith('INF'):
+            if not (upos == 'SCONJ' and True):
+                return False
+        if (upos in ('NOUN', 'PROPN')) != (lexcat == 'N'):
+            if not (upos in ('SYM', 'X') or (lexcat in ('PRON', 'DISC'))):
+                return False
+        if (upos == 'AUX') != (lexcat == 'AUX'):
+            # Check below was originally tok['lemma']=='be' and lexcat=='V'
+            if not (True and lexcat == 'V'):
+                return False
+        if (upos == 'VERB') != (lexcat == 'V'):
+            if lexcat == 'ADJ':
+                print('Word treated as VERB in UD, ADJ for supersenses:', upos, lexcat)
+            else:
+                # Check below was originally tok['lemma'] == 'be' and lexcat == 'V'
+                if not (True and lexcat == 'V'):
+                    return False
+        if upos == 'PRON':
+            if not lexcat in ('PRON', 'PRON.POSS'):
+                return False
+        if lexcat == 'ADV':
+            if not upos in ('ADV', 'PART'):
+                return False
+        if upos == 'ADP' and lexcat == 'CCONJ':
+            # Check below was originally tok['lemma'] == 'versus'
+            if not True:
+                return False
+        return True
+
+    allowed_combinations = {}
+    for lexcat in ALL_LEXCATS:
+        for universal_pos in ALL_UPOS:
+            if is_allowed(universal_pos, lexcat):
+                if universal_pos not in allowed_combinations:
+                    allowed_combinations[universal_pos] = set()
+                allowed_combinations[universal_pos].add(lexcat)
+    return allowed_combinations
 
 def streusle_allowed_transitions(labels: Dict[int, str]) -> List[Tuple[int, int]]:
     """
