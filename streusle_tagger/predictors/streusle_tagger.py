@@ -18,3 +18,9 @@ class StreusleTaggerPredictor(Predictor):
         upos_tags = json_dict.get("upos_tags", None)
         return self._dataset_reader.text_to_instance(tokens=tokens,
                                                      upos_tags=upos_tags)
+
+    def dump_line(self, outputs: JsonDict) -> str:
+        if "mask" in outputs:
+            return str(outputs["tags"][:sum(outputs["mask"])]) + "\n"
+        else:
+            return str(outputs["tags"]) + "\n"
