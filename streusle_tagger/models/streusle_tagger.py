@@ -321,7 +321,7 @@ def get_upos_allowed_lexcats():
             # Check below was originally tok['lemma'] == 'versus'
             if not True:
                 return False
-        return True
+        return False
 
     allowed_combinations = {}
     for lexcat in ALL_LEXCATS:
