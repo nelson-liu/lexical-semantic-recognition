@@ -1,4 +1,6 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
+import json
+import logging
 
 from overrides import overrides
 import torch
@@ -13,6 +15,12 @@ from allennlp.nn import InitializerApplicator, RegularizerApplicator
 import allennlp.nn.util as util
 from allennlp.training.metrics import CategoricalAccuracy
 
+ALL_UPOS = {'X', 'INTJ', 'VERB', 'ADV', 'CCONJ', 'PUNCT', 'ADP',
+            'NOUN', 'SYM', 'ADJ', 'PROPN', 'DET', 'PART', 'PRON', 'SCONJ', 'NUM', 'AUX'}
+ALL_LEXCATS = {'N', 'INTJ', 'INF.P', 'V', 'AUX', 'PP', 'PUNCT',
+               'POSS', 'X', 'PRON.POSS', 'SYM', 'PRON', 'SCONJ',
+               'NUM', 'DISC', 'ADV', 'CCONJ', 'P', 'ADJ', 'DET', 'INF'}
+logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 @Model.register("streusle_tagger")
 class StreusleTagger(Model):
@@ -77,8 +85,35 @@ class StreusleTagger(Model):
             output_dim = encoder_output_dim
         self.tag_projection_layer = TimeDistributed(Linear(output_dim,
                                                            self.num_tags))
-        labels = self.vocab.get_index_to_token_vocabulary(label_namespace)
+        self._label_namespace = label_namespace
+        labels = self.vocab.get_index_to_token_vocabulary(self._label_namespace)
         constraints = streusle_allowed_transitions(labels)
+
+        # Get a dict with a mapping from UPOS to allowed LEXCAT here.
+        self._upos_to_allowed_lexcats: Dict[str, Set[str]] = get_upos_allowed_lexcats()
+        # Use labels and the upos_to_allowed_lexcats to get a dict with
+        # a mapping from UPOS to a mask with 1 at allowed label indices and 0 at
+        # disallowed label indices.
+        self._upos_to_label_mask: Dict[str, torch.Tensor] = {}
+        for upos in ALL_UPOS:
+            # Shape: (num_labels,)
+            upos_label_mask = torch.zeros(len(labels),
+                                          device=next(self.tag_projection_layer.parameters()).device)
+            # Go through the labels and indices and fill in the values that are allowed.
+            for label_index, label in labels.items():
+                if len(label.split("-")) == 1:
+                    upos_label_mask[label_index] = 1
+                    continue
+                label_lexcat = label.split("-")[1]
+                if not label.startswith("O-") and not label.startswith("o-"):
+                    # Label does not start with O-/o-, always allowed.
+                    upos_label_mask[label_index] = 1
+                elif label_lexcat in self._upos_to_allowed_lexcats[upos]:
+                    # Label starts with O-/o-, but the lexcat is in allowed
+                    # lexcats for the current upos.
+                    upos_label_mask[label_index] = 1
+            self._upos_to_label_mask[upos] = upos_label_mask
+
         self.include_start_end_transitions = include_start_end_transitions
         self.crf = ConditionalRandomField(
                 self.num_tags, constraints,
@@ -100,8 +135,7 @@ class StreusleTagger(Model):
     def forward(self,  # type: ignore
                 tokens: Dict[str, torch.LongTensor],
                 tags: torch.LongTensor = None,
-                # pylint: disable=unused-argument
-                **kwargs) -> Dict[str, torch.Tensor]:
+                metadata: List[Dict[str, Any]] = None) -> Dict[str, torch.Tensor]:
         # pylint: disable=arguments-differ
         """
         Parameters
@@ -116,15 +150,17 @@ class StreusleTagger(Model):
             which knows how to combine different word representations into a single vector per
             token in your input.
         tags : ``torch.LongTensor``, optional (default = ``None``)
-            A torch tensor representing the sequence of integer gold class labels of shape
+            A torch tensor representing the sequence of integer gold lextags of shape
             ``(batch_size, num_tokens)``.
+        metadata : ``List[Dict[str, Any]]``, optional, (default = None)
+            Additional information about the example.
 
         Returns
         -------
         An output dictionary consisting of:
 
-        logits : ``torch.FloatTensor``
-            The logits that are the output of the ``tag_projection_layer``
+        constrained_logits : ``torch.FloatTensor``
+            The constrained logits that are the output of the ``tag_projection_layer``
         mask : ``torch.LongTensor``
             The text field mask for the input tokens
         tags : ``List[List[int]]``
@@ -150,21 +186,32 @@ class StreusleTagger(Model):
             encoded_text = self.feedforward(encoded_text)
 
         logits = self.tag_projection_layer(encoded_text)
-        best_paths = self.crf.viterbi_tags(logits, mask)
+
+        # List of length (batch_size,), where each inner list is a list of
+        # the UPOS tags for the associated token sequence.
+        batch_upos_tags = [instance_metadata["upos_tags"] for instance_metadata in metadata]
+
+        # Get a (batch_size, max_sequence_length, num_tags) mask with "1" in
+        # tags that are allowed for a given UPOS, and "0" for tags that are
+        # disallowed for a given UPOS.
+        batch_upos_constraint_mask = self.get_upos_constraint_mask(batch_upos_tags=batch_upos_tags)
+        constrained_logits = logits * batch_upos_constraint_mask
+
+        best_paths = self.crf.viterbi_tags(constrained_logits, mask)
 
         # Just get the tags and ignore the score.
         predicted_tags = [x for x, y in best_paths]
 
-        output = {"logits": logits, "mask": mask, "tags": predicted_tags}
+        output = {"constrained_logits": constrained_logits, "mask": mask, "tags": predicted_tags}
 
         if tags is not None:
             # Add negative log-likelihood as loss
-            log_likelihood = self.crf(logits, tags, mask)
+            log_likelihood = self.crf(constrained_logits, tags, mask)
             output["loss"] = -log_likelihood
 
             # Represent viterbi tags as "class probabilities" that we can
             # feed into the metrics
-            class_probabilities = logits * 0.
+            class_probabilities = constrained_logits * 0.
             for i, instance_tags in enumerate(predicted_tags):
                 for j, tag_id in enumerate(instance_tags):
                     class_probabilities[i, j, tag_id] = 1
@@ -192,6 +239,102 @@ class StreusleTagger(Model):
         metrics_to_return = {metric_name: metric.get_metric(reset) for
                              metric_name, metric in self.metrics.items()}
         return metrics_to_return
+
+    def get_upos_constraint_mask(self,
+                                 batch_upos_tags: List[List[str]]):
+        """
+        Given POS tags for a batch, return a mask of shape
+        (batch_size, max_sequence_length, num_tags) mask with "1" in
+        tags that are allowed for a given UPOS, and "0" for tags that are
+        disallowed for a given UPOS.
+
+        Parameters
+        ----------
+        batch_upos_tags: ``List[List[str]]``, required
+            UPOS tags for a batch.
+
+        Returns
+        -------
+        ``Tensor``, shape (batch_size, max_sequence_length, num_tags)
+            A mask over the logits, with 1 in positions where a tag is allowed
+            for its UPOS and 0 in positions where a tag is allowed for its UPOS.
+        """
+        # TODO(nfliu): this is pretty inefficient, maybe there's someway to make it batched?
+        # Shape: (batch_size, max_sequence_length, num_tags)
+        upos_constraint_mask = torch.zeros(len(batch_upos_tags),
+                                           len(max(batch_upos_tags, key=len)),
+                                           self.num_tags,
+                                           device=next(self.tag_projection_layer.parameters()).device)
+        # Iterate over the batch
+        for example_index, example_upos_tags in enumerate(
+                batch_upos_tags):
+            # Shape of example_constraint_mask: (max_sequence_length, num_tags)
+            # Iterate over the upos tags for the example
+            example_constraint_mask = upos_constraint_mask[example_index]
+            for timestep_index, timestep_upos_tag in enumerate(  # pylint: disable=unused-variable
+                    example_upos_tags):
+                # Shape of timestep_constraint_mask: (num_tags,)
+                example_constraint_mask[timestep_index] = self._upos_to_label_mask[timestep_upos_tag]
+        return upos_constraint_mask
+
+def get_upos_allowed_lexcats():
+    # pylint: disable=too-many-return-statements
+    def is_allowed(upos, lexcat):
+        if lexcat.endswith('!@'):
+            return True
+        if upos == lexcat:
+            return True
+        if (upos, lexcat) in {('NOUN', 'N'), ('PROPN', 'N'), ('VERB', 'V'),
+                              ('ADP', 'P'), ('ADV', 'P'), ('SCONJ', 'P'),
+                              ('ADP', 'DISC'), ('ADV', 'DISC'), ('SCONJ', 'DISC'),
+                              ('PART', 'POSS')}:
+            return True
+        # First check below was originally (xpos=='TO'),
+        # but this was transformed to (upos=='PART' and tok['lemma']='to'),
+        # which was finally transformed to (upos=='PART' and True)
+        if (upos == 'PART' and True) and lexcat.startswith('INF'):
+            return True
+        if (upos == 'PART' and True) != lexcat.startswith('INF'):
+            if not (upos == 'SCONJ' and True):
+                return False
+        if (upos in ('NOUN', 'PROPN')) != (lexcat == 'N'):
+            if not (upos in ('SYM', 'X') or (lexcat in ('PRON', 'DISC'))):
+                return False
+        if (upos == 'AUX') != (lexcat == 'AUX'):
+            # Check below was originally tok['lemma']=='be' and lexcat=='V'
+            if not (True and lexcat == 'V'):
+                return False
+        if (upos == 'VERB') != (lexcat == 'V'):
+            if lexcat == 'ADJ':
+                print('Word treated as VERB in UD, ADJ for supersenses:', upos, lexcat)
+            else:
+                # Check below was originally tok['lemma'] == 'be' and lexcat == 'V'
+                if not (True and lexcat == 'V'):
+                    return False
+        if upos == 'PRON':
+            if not lexcat in ('PRON', 'PRON.POSS'):
+                return False
+        if lexcat == 'ADV':
+            if not upos in ('ADV', 'PART'):
+                return False
+        if upos == 'ADP' and lexcat == 'CCONJ':
+            # Check below was originally tok['lemma'] == 'versus'
+            if not True:
+                return False
+        return True
+
+    allowed_combinations = {}
+    for lexcat in ALL_LEXCATS:
+        for universal_pos in ALL_UPOS:
+            if is_allowed(universal_pos, lexcat):
+                if universal_pos not in allowed_combinations:
+                    allowed_combinations[universal_pos] = set()
+                allowed_combinations[universal_pos].add(lexcat)
+    logger.info("Allowed lexcats for each UPOS:")
+    json_allowed_combinations = {upos: sorted(list(lexcats)) for
+                                 upos, lexcats in allowed_combinations.items()}
+    logger.info(json.dumps(json_allowed_combinations, indent=2))
+    return allowed_combinations
 
 def streusle_allowed_transitions(labels: Dict[int, str]) -> List[Tuple[int, int]]:
     """
