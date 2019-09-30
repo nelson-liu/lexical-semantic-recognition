@@ -202,7 +202,13 @@ class StreusleTagger(Model):
         # Just get the tags and ignore the score.
         predicted_tags = [x for x, y in best_paths]
 
-        output = {"constrained_logits": constrained_logits, "mask": mask, "tags": predicted_tags}
+        output = {
+                "constrained_logits": constrained_logits,
+                "mask": mask,
+                "tags": predicted_tags,
+                "upos_tags": batch_upos_tags,
+                "tokens": [instance_metadata["tokens"] for instance_metadata in metadata]
+        }
 
         if tags is not None:
             # Add negative log-likelihood as loss
