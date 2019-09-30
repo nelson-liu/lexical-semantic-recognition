@@ -37,7 +37,7 @@
         "type": "adam",
         "lr": 0.001
     },
-    "num_serialized_models_to_keep": 3,
+    "num_serialized_models_to_keep": 1,
     "num_epochs": 75,
     "grad_norm": 5.0,
     "patience": 25,

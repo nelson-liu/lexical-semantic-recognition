@@ -267,10 +267,10 @@ class StreusleTagger(Model):
         """
         # TODO(nfliu): this is pretty inefficient, maybe there's someway to make it batched?
         # Shape: (batch_size, max_sequence_length, num_tags)
-        upos_constraint_mask = torch.zeros(len(batch_upos_tags),
-                                           len(max(batch_upos_tags, key=len)),
-                                           self.num_tags,
-                                           device=next(self.tag_projection_layer.parameters()).device)
+        upos_constraint_mask = torch.ones(len(batch_upos_tags),
+                                          len(max(batch_upos_tags, key=len)),
+                                          self.num_tags,
+                                          device=next(self.tag_projection_layer.parameters()).device) * -1e32
         # Iterate over the batch
         for example_index, example_upos_tags in enumerate(
                 batch_upos_tags):
