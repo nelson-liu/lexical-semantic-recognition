@@ -195,7 +195,9 @@ class StreusleTagger(Model):
         # tags that are allowed for a given UPOS, and "0" for tags that are
         # disallowed for a given UPOS.
         batch_upos_constraint_mask = self.get_upos_constraint_mask(batch_upos_tags=batch_upos_tags)
-        constrained_logits = logits * batch_upos_constraint_mask
+        constrained_logits = util.replace_masked_values(logits,
+                                                        batch_upos_constraint_mask,
+                                                        -1e32)
 
         best_paths = self.crf.viterbi_tags(constrained_logits, mask)
 
