@@ -301,7 +301,7 @@ def get_upos_allowed_lexcats():
         # but this was transformed to (upos=='PART' and tok['lemma']='to'),
         # which was finally transformed to (upos=='PART' and True)
         if lexcat.startswith('INF'):
-            return upos=='PART' or upos=='SCONJ'
+            return upos in ('PART', 'SCONJ')
         if (upos in ('NOUN', 'PROPN')) != (lexcat == 'N'):
             if not (upos in ('SYM', 'X') or (lexcat in ('PRON', 'DISC'))):
                 return False
