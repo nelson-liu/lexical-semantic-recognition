@@ -1,5 +1,6 @@
 import argparse
 import ast
+import json
 import logging
 
 from conllulex2json import load_sents, print_json
@@ -23,10 +24,19 @@ def swap_lextags(sents, lextags_lists):
         yield sent
 
 
+def load_lextags(lines):
+    for line in lines:
+        try:
+            yield json.loads(line)["tags"]
+        except json.decoder.JSONDecodeError:
+            yield ast.literal_eval(line)
+
+
 def main(args):
     with open(args.fname, encoding="utf-8") as f, open(args.lextags, encoding="utf-8") as lextags_lines:
-        print_json(swap_lextags(load_sents(f, ss_mapper=SSMapper(args.depth), validate_type=False, validate_pos=False),
-                                map(ast.literal_eval, lextags_lines)))
+        sents = load_sents(f, ss_mapper=SSMapper(args.depth), validate_type=False, validate_pos=False)
+        lextags_lists = load_lextags(lextags_lines)
+        print_json(swap_lextags(sents, lextags_lists))
 
 
 if __name__ == "__main__":
@@ -35,7 +45,7 @@ if __name__ == "__main__":
                         level=logging.INFO)
     argparser = argparse.ArgumentParser(description="Swap lextags into a STREUSLE file")
     argparser.add_argument("fname", help="conllulex or json file with full STREUSLE annotation")
-    argparser.add_argument("lextags", help="jsonlines file: each line is a list of lextags for a sentence"
+    argparser.add_argument("lextags", help="jsonlines file: each line's 'tags' entry is a sentence's list of lextags"
                                            "in serialized list notation, e.g., ['B-ADV', 'I~-V-v.communication']")
     argparser.add_argument('--depth', metavar='D', type=int, choices=range(1, 5), default=4,
                            help='depth of hierarchy at which to cluster SNACS supersense labels '
