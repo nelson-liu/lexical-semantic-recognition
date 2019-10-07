@@ -307,13 +307,9 @@ def get_upos_allowed_lexcats():
             # Check below was originally tok['lemma']=='be' and lexcat=='V'
             if True and lexcat == 'V':
                 mismatchOK = True
-        if (upos == 'VERB') != (lexcat == 'V'):
-            if lexcat == 'ADJ':
-                print('Word treated as VERB in UD, ADJ for supersenses:', upos, lexcat)
-            else:
-                # Check below was originally tok['lemma'] == 'be' and lexcat == 'V'
-                if True and lexcat == 'V':
-                    mismatchOK = True
+        if lexcat == "V":
+            if upos in ('VERB', 'AUX'):
+                mismatchOK = True
         if upos == 'PRON':
             if lexcat in ('PRON', 'PRON.POSS'):
                 mismatchOK = True
