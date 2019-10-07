@@ -318,7 +318,7 @@ def get_upos_allowed_lexcats():
                 mismatchOK = True
         if upos == 'ADP' and lexcat == 'CCONJ':
             # Check below was originally tok['lemma'] == 'versus'
-            mismatchOK = False
+            mismatchOK = True
         return mismatchOK
 
     allowed_combinations = {}
