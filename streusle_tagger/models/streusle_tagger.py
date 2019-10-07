@@ -297,7 +297,7 @@ def get_upos_allowed_lexcats():
                               ('ADP', 'DISC'), ('ADV', 'DISC'), ('SCONJ', 'DISC'),
                               ('PART', 'POSS')}:
             return True
-        mismatchOK = False
+        mismatch_ok = False
         # First check below was originally (xpos=='TO'),
         # but this was transformed to (upos=='PART' and tok['lemma']='to'),
         # which was finally transformed to (upos=='PART' and True)
@@ -306,20 +306,20 @@ def get_upos_allowed_lexcats():
         if (upos == 'AUX') != (lexcat == 'AUX'):
             # Check below was originally tok['lemma']=='be' and lexcat=='V'
             if True and lexcat == 'V':
-                mismatchOK = True
+                mismatch_ok = True
         if lexcat == "V":
             if upos in ('VERB', 'AUX'):
-                mismatchOK = True
+                mismatch_ok = True
         if upos == 'PRON':
             if lexcat in ('PRON', 'PRON.POSS'):
-                mismatchOK = True
+                mismatch_ok = True
         if lexcat == 'ADV':
             if upos in ('ADV', 'PART'):
-                mismatchOK = True
+                mismatch_ok = True
         if upos == 'ADP' and lexcat == 'CCONJ':
             # Check below was originally tok['lemma'] == 'versus'
-            mismatchOK = True
-        return mismatchOK
+            mismatch_ok = True
+        return mismatch_ok
 
     allowed_combinations = {}
     for lexcat in ALL_LEXCATS:
