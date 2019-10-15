@@ -193,20 +193,27 @@ class StreusleTagger(Model):
 
         logits = self.tag_projection_layer(encoded_text)
 
-        if self.use_upos_constraints:
+        if self.use_upos_constraints and self.use_lemma_constraints:
             # List of length (batch_size,), where each inner list is a list of
             # the UPOS tags for the associated token sequence.
             batch_upos_tags = [instance_metadata["upos_tags"] for instance_metadata in metadata]
 
+            # List of length (batch_size,), where each inner list is a list of
+            # the lemmas for the associated token sequence.
+            batch_lemmas = [instance_metadata["lemmas"] for instance_metadata in metadata]
+
             # Get a (batch_size, max_sequence_length, num_tags) mask with "1" in
             # tags that are allowed for a given UPOS, and "0" for tags that are
-            # disallowed for a given UPOS.
-            batch_upos_constraint_mask = self.get_upos_constraint_mask(batch_upos_tags=batch_upos_tags)
+            # disallowed for an even UPOS.
+            batch_upos_constraint_mask = self.get_upos_constraint_mask(batch_upos_tags=batch_upos_tags,
+                                                                       batch_lemmas=batch_lemmas)
+
             constrained_logits = util.replace_masked_values(logits,
                                                             batch_upos_constraint_mask,
                                                             -1e32)
         else:
             constrained_logits = logits
+
 
         best_paths = self.crf.viterbi_tags(constrained_logits, mask)
         # Just get the tags and ignore the score.
@@ -259,9 +266,10 @@ class StreusleTagger(Model):
         return metrics_to_return
 
     def get_upos_constraint_mask(self,
-                                 batch_upos_tags: List[List[str]]):
+                                 batch_upos_tags: List[List[str]],
+                                 batch_lemmas: List[List[str]]):
         """
-        Given POS tags for a batch, return a mask of shape
+        Given POS tags and lemmas for a batch, return a mask of shape
         (batch_size, max_sequence_length, num_tags) mask with "1" in
         tags that are allowed for a given UPOS, and "0" for tags that are
         disallowed for a given UPOS.
@@ -270,6 +278,8 @@ class StreusleTagger(Model):
         ----------
         batch_upos_tags: ``List[List[str]]``, required
             UPOS tags for a batch.
+        batch_lemmas: ``List[List[str]]``, required
+            Lemmas for a batch.
 
         Returns
         -------
@@ -284,15 +294,19 @@ class StreusleTagger(Model):
                                           self.num_tags,
                                           device=next(self.tag_projection_layer.parameters()).device) * -1e32
         # Iterate over the batch
-        for example_index, example_upos_tags in enumerate(
-                batch_upos_tags):
+        for example_index, (example_upos_tags, example_lemmas) in enumerate(
+                zip(batch_upos_tags, batch_lemmas)):
             # Shape of example_constraint_mask: (max_sequence_length, num_tags)
             # Iterate over the upos tags for the example
             example_constraint_mask = upos_constraint_mask[example_index]
-            for timestep_index, timestep_upos_tag in enumerate(  # pylint: disable=unused-variable
+            for timestep_index, (timestep_upos_tag, timestep_lemma) in enumerate(  # pylint: disable=unused-variable
                     example_upos_tags):
                 # Shape of timestep_constraint_mask: (num_tags,)
                 example_constraint_mask[timestep_index] = self._upos_to_label_mask[timestep_upos_tag]
+                # Add exceptions for lemmas
+                # if lemma is "be", then (upos AUX, lexcat V) is an allowed pairing.
+                # if lemma is "versus", then (upos ADP, lc CCONJ) is an alloewd pairing.
+                # TODO(nfliu): fill in 1's for these exceptions.
         return upos_constraint_mask
 
 def get_upos_allowed_lexcats():
