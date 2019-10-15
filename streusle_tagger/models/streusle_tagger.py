@@ -297,36 +297,29 @@ def get_upos_allowed_lexcats():
                               ('ADP', 'DISC'), ('ADV', 'DISC'), ('SCONJ', 'DISC'),
                               ('PART', 'POSS')}:
             return True
+        mismatch_ok = False
         # First check below was originally (xpos=='TO'),
         # but this was transformed to (upos=='PART' and tok['lemma']='to'),
         # which was finally transformed to (upos=='PART' and True)
         if lexcat.startswith('INF'):
             return upos in ('PART', 'SCONJ')
-        if (upos in ('NOUN', 'PROPN')) != (lexcat == 'N'):
-            if not (upos in ('SYM', 'X') or (lexcat in ('PRON', 'DISC'))):
-                return False
         if (upos == 'AUX') != (lexcat == 'AUX'):
             # Check below was originally tok['lemma']=='be' and lexcat=='V'
-            if not (True and lexcat == 'V'):
-                return False
-        if (upos == 'VERB') != (lexcat == 'V'):
-            if lexcat == 'ADJ':
-                print('Word treated as VERB in UD, ADJ for supersenses:', upos, lexcat)
-            else:
-                # Check below was originally tok['lemma'] == 'be' and lexcat == 'V'
-                if not (True and lexcat == 'V'):
-                    return False
+            if True and lexcat == 'V':
+                mismatch_ok = True
+        if lexcat == "V":
+            if upos in ('VERB', 'AUX'):
+                mismatch_ok = True
         if upos == 'PRON':
-            if not lexcat in ('PRON', 'PRON.POSS'):
-                return False
+            if lexcat in ('PRON', 'PRON.POSS'):
+                mismatch_ok = True
         if lexcat == 'ADV':
-            if not upos in ('ADV', 'PART'):
-                return False
+            if upos in ('ADV', 'PART'):
+                mismatch_ok = True
         if upos == 'ADP' and lexcat == 'CCONJ':
             # Check below was originally tok['lemma'] == 'versus'
-            if not True:
-                return False
-        return False
+            mismatch_ok = True
+        return mismatch_ok
 
     allowed_combinations = {}
     for lexcat in ALL_LEXCATS:
