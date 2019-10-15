@@ -33,7 +33,7 @@
     "batch_size": 64
   },
   "trainer": {
-    "validation_metric": "+validation_accuracy",
+    "validation_metric": "+accuracy",
     "optimizer": {
         "type": "adam",
         "lr": 0.001
