@@ -303,10 +303,6 @@ def get_upos_allowed_lexcats():
         # which was finally transformed to (upos=='PART' and True)
         if lexcat.startswith('INF'):
             return upos in ('PART', 'SCONJ')
-        if (upos == 'AUX') != (lexcat == 'AUX'):
-            # Check below was originally tok['lemma']=='be' and lexcat=='V'
-            if True and lexcat == 'V':
-                mismatch_ok = True
         # AUX and V are ok only if the lemma is "be"
         # if upos =="AUX" and lexcat == "V":
         #     mismatch_ok = True
