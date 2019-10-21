@@ -17,6 +17,7 @@
   "model": {
     "type": "streusle_tagger",
     "use_upos_constraints": false,
+    "use_lemma_constraints": false,
     "text_field_embedder": {
       "token_embedders": {
         "tokens": {

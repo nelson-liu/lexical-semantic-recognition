@@ -6,7 +6,7 @@ from overrides import overrides
 import torch
 from torch.nn.modules.linear import Linear
 
-from allennlp.common.checks import check_dimensions_match
+from allennlp.common.checks import check_dimensions_match, ConfigurationError
 from allennlp.data import Vocabulary
 from allennlp.modules import Seq2SeqEncoder, TimeDistributed, TextFieldEmbedder
 from allennlp.modules import ConditionalRandomField, FeedForward
@@ -20,6 +20,7 @@ ALL_UPOS = {'X', 'INTJ', 'VERB', 'ADV', 'CCONJ', 'PUNCT', 'ADP',
 ALL_LEXCATS = {'N', 'INTJ', 'INF.P', 'V', 'AUX', 'PP', 'PUNCT',
                'POSS', 'X', 'PRON.POSS', 'SYM', 'PRON', 'SCONJ',
                'NUM', 'DISC', 'ADV', 'CCONJ', 'P', 'ADJ', 'DET', 'INF'}
+SPECIAL_LEMMAS = {"to", "be", "versus"}
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 @Model.register("streusle_tagger")
@@ -49,6 +50,9 @@ class StreusleTagger(Model):
     dropout:  ``float``, optional (default=``None``)
     use_upos_constraints : ``bool``, optional (default=``True``)
         Whether to use UPOS constraints. If True, model shoudl recieve UPOS as input.
+    use_lemma_constraints : ``bool``, optional (default=``True``)
+        Whether to use lemma constraints. If True, model shoudl recieve lemmas as input.
+        If this is true, then use_upos_constraints must be true as well.
     initializer : ``InitializerApplicator``, optional (default=``InitializerApplicator()``)
         Used to initialize the model parameters.
     regularizer : ``RegularizerApplicator``, optional (default=``None``)
@@ -64,6 +68,7 @@ class StreusleTagger(Model):
                  include_start_end_transitions: bool = True,
                  dropout: Optional[float] = None,
                  use_upos_constraints: bool = True,
+                 use_lemma_constraints: bool = True,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
@@ -93,10 +98,17 @@ class StreusleTagger(Model):
         constraints = streusle_allowed_transitions(labels)
 
         self.use_upos_constraints = use_upos_constraints
+        self.use_lemma_constraints = use_lemma_constraints
+
+        if self.use_lemma_constraints and not self.use_upos_constraints:
+            raise ConfigurationError("If lemma constraints are applied, UPOS constraints must be applied as well.")
 
         if self.use_upos_constraints:
             # Get a dict with a mapping from UPOS to allowed LEXCAT here.
             self._upos_to_allowed_lexcats: Dict[str, Set[str]] = get_upos_allowed_lexcats()
+            # Dict with a amapping from UPOS to dictionary of [UPOS, list of allowed LEXCATS]
+            self._lemma_to_allowed_lexcats: Dict[str, Dict[str, List[str]]] = get_lemma_allowed_lexcats()
+
             # Use labels and the upos_to_allowed_lexcats to get a dict with
             # a mapping from UPOS to a mask with 1 at allowed label indices and 0 at
             # disallowed label indices.
@@ -119,6 +131,35 @@ class StreusleTagger(Model):
                         # lexcats for the current upos.
                         upos_label_mask[label_index] = 1
                 self._upos_to_label_mask[upos] = upos_label_mask
+
+            # Use labels and the lemma_to_allowed_lexcats to get a dict with
+            # a mapping from lemma to a mask with 1 at an _additionally_ allowed label index
+            # and 0 at disallowed label indices. If lemma_to_label_mask has a 0, and upos_to_label_mask
+            # has a 0, the lexcat is not allowed for the (upos, lemma). If either lemma_to_label_mask or
+            # upos_to_label_mask has a 1, the lexcat is allowed for the (upos, lemma) pair.
+            self._lemma_upos_to_label_mask: Dict[Tuple[str, str], torch.Tensor] = {}
+            for lemma in SPECIAL_LEMMAS:
+                for upos_tag in ALL_UPOS:
+                    # No additional constraints, should be all zero
+                    if upos_tag not in self._lemma_to_allowed_lexcats[lemma]:
+                        continue
+                    # Shape: (num_labels,)
+                    lemma_upos_label_mask = torch.zeros(len(labels),
+                                                        device=next(self.tag_projection_layer.parameters()).device)
+                    # Go through the labels and indices and fill in the values that are allowed.
+                    for label_index, label in labels.items():
+                        # For ~i, etc. tags. We don't deal with them here.
+                        if len(label.split("-")) == 1:
+                            continue
+                        label_lexcat = label.split("-")[1]
+                        if not label.startswith("O-") and not label.startswith("o-"):
+                            # Label does not start with O-/o-, so we don't deal with it here
+                            continue
+                        elif label_lexcat in self._lemma_to_allowed_lexcats[lemma][upos_tag]:
+                            # Label starts with O-/o-, but the lexcat is in allowed
+                            # lexcats for the current upos.
+                            lemma_upos_label_mask[label_index] = 1
+                    self._lemma_upos_to_label_mask[(lemma, upos_tag)] = lemma_upos_label_mask
 
         self.include_start_end_transitions = include_start_end_transitions
         self.crf = ConditionalRandomField(
@@ -193,14 +234,19 @@ class StreusleTagger(Model):
 
         logits = self.tag_projection_layer(encoded_text)
 
-        if self.use_upos_constraints and self.use_lemma_constraints:
+        # initial mask is unmasked
+        batch_upos_constraint_mask = torch.ones_like(logits)
+        if self.use_upos_constraints:
             # List of length (batch_size,), where each inner list is a list of
             # the UPOS tags for the associated token sequence.
             batch_upos_tags = [instance_metadata["upos_tags"] for instance_metadata in metadata]
 
             # List of length (batch_size,), where each inner list is a list of
             # the lemmas for the associated token sequence.
-            batch_lemmas = [instance_metadata["lemmas"] for instance_metadata in metadata]
+            if self.use_lemma_constraints:
+                batch_lemmas = [instance_metadata.get("lemmas", None) for instance_metadata in metadata]
+            else:
+                batch_lemmas = [None] * len(metadata)
 
             # Get a (batch_size, max_sequence_length, num_tags) mask with "1" in
             # tags that are allowed for a given UPOS, and "0" for tags that are
@@ -208,12 +254,9 @@ class StreusleTagger(Model):
             batch_upos_constraint_mask = self.get_upos_constraint_mask(batch_upos_tags=batch_upos_tags,
                                                                        batch_lemmas=batch_lemmas)
 
-            constrained_logits = util.replace_masked_values(logits,
-                                                            batch_upos_constraint_mask,
-                                                            -1e32)
-        else:
-            constrained_logits = logits
-
+        constrained_logits = util.replace_masked_values(logits,
+                                                        batch_upos_constraint_mask,
+                                                        -1e32)
 
         best_paths = self.crf.viterbi_tags(constrained_logits, mask)
         # Just get the tags and ignore the score.
@@ -300,14 +343,21 @@ class StreusleTagger(Model):
             # Iterate over the upos tags for the example
             example_constraint_mask = upos_constraint_mask[example_index]
             for timestep_index, (timestep_upos_tag, timestep_lemma) in enumerate(  # pylint: disable=unused-variable
-                    example_upos_tags):
+                    zip(example_upos_tags, example_lemmas)):
                 # Shape of timestep_constraint_mask: (num_tags,)
-                example_constraint_mask[timestep_index] = self._upos_to_label_mask[timestep_upos_tag]
-                # Add exceptions for lemmas
-                # if lemma is "be", then (upos AUX, lexcat V) is an allowed pairing.
-                # if lemma is "versus", then (upos ADP, lc CCONJ) is an alloewd pairing.
-                # TODO(nfliu): fill in 1's for these exceptions.
+                upos_constraint = self._upos_to_label_mask[timestep_upos_tag]
+                lemma_constraint = self._lemma_upos_to_label_mask.get((timestep_lemma, timestep_upos_tag),
+                                                                      torch.zeros_like(upos_constraint))
+                example_constraint_mask[timestep_index] = (upos_constraint.long() | lemma_constraint.long()).float()
         return upos_constraint_mask
+
+def get_lemma_allowed_lexcats():
+    lemmas_to_constraints = {}
+    # (POS, LEXCAT)
+    lemmas_to_constraints["to"] = {"PART": ["INF"]}
+    lemmas_to_constraints["be"] = {"AUX": ["V"]}
+    lemmas_to_constraints["versus"] = {"ADP": {"CCONJ"}}
+    return lemmas_to_constraints
 
 def get_upos_allowed_lexcats():
     # pylint: disable=too-many-return-statements
