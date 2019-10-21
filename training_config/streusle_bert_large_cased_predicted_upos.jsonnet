@@ -1,6 +1,7 @@
 {
   "dataset_reader": {
     "type": "streusle",
+    "use_predicted_upos": true,
     "token_indexers": {
         "bert": {
             "type": "bert-pretrained",
