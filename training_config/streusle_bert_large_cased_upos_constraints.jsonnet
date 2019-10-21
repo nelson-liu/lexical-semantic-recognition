@@ -14,7 +14,7 @@
   "model": {
     "type": "streusle_tagger",
     "use_upos_constraints": true,
-    "use_lemma_constraints": true,
+    "use_lemma_constraints": false,
     "text_field_embedder": {
         "allow_unmatched_keys": true,
         "embedder_to_indexer_map": {
