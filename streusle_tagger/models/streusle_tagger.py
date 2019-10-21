@@ -47,6 +47,8 @@ class StreusleTagger(Model):
     include_start_end_transitions : ``bool``, optional (default=``True``)
         Whether to include start and end transition parameters in the CRF.
     dropout:  ``float``, optional (default=``None``)
+    use_upos_constraints : ``bool``, optional (default=``True``)
+        Whether to use UPOS constraints. If True, model shoudl recieve UPOS as input.
     initializer : ``InitializerApplicator``, optional (default=``InitializerApplicator()``)
         Used to initialize the model parameters.
     regularizer : ``RegularizerApplicator``, optional (default=``None``)
@@ -61,6 +63,7 @@ class StreusleTagger(Model):
                  feedforward: Optional[FeedForward] = None,
                  include_start_end_transitions: bool = True,
                  dropout: Optional[float] = None,
+                 use_upos_constraints: bool = True,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
@@ -89,30 +92,33 @@ class StreusleTagger(Model):
         labels = self.vocab.get_index_to_token_vocabulary(self._label_namespace)
         constraints = streusle_allowed_transitions(labels)
 
-        # Get a dict with a mapping from UPOS to allowed LEXCAT here.
-        self._upos_to_allowed_lexcats: Dict[str, Set[str]] = get_upos_allowed_lexcats()
-        # Use labels and the upos_to_allowed_lexcats to get a dict with
-        # a mapping from UPOS to a mask with 1 at allowed label indices and 0 at
-        # disallowed label indices.
-        self._upos_to_label_mask: Dict[str, torch.Tensor] = {}
-        for upos in ALL_UPOS:
-            # Shape: (num_labels,)
-            upos_label_mask = torch.zeros(len(labels),
-                                          device=next(self.tag_projection_layer.parameters()).device)
-            # Go through the labels and indices and fill in the values that are allowed.
-            for label_index, label in labels.items():
-                if len(label.split("-")) == 1:
-                    upos_label_mask[label_index] = 1
-                    continue
-                label_lexcat = label.split("-")[1]
-                if not label.startswith("O-") and not label.startswith("o-"):
-                    # Label does not start with O-/o-, always allowed.
-                    upos_label_mask[label_index] = 1
-                elif label_lexcat in self._upos_to_allowed_lexcats[upos]:
-                    # Label starts with O-/o-, but the lexcat is in allowed
-                    # lexcats for the current upos.
-                    upos_label_mask[label_index] = 1
-            self._upos_to_label_mask[upos] = upos_label_mask
+        self.use_upos_constraints = use_upos_constraints
+
+        if self.use_upos_constraints:
+            # Get a dict with a mapping from UPOS to allowed LEXCAT here.
+            self._upos_to_allowed_lexcats: Dict[str, Set[str]] = get_upos_allowed_lexcats()
+            # Use labels and the upos_to_allowed_lexcats to get a dict with
+            # a mapping from UPOS to a mask with 1 at allowed label indices and 0 at
+            # disallowed label indices.
+            self._upos_to_label_mask: Dict[str, torch.Tensor] = {}
+            for upos in ALL_UPOS:
+                # Shape: (num_labels,)
+                upos_label_mask = torch.zeros(len(labels),
+                                              device=next(self.tag_projection_layer.parameters()).device)
+                # Go through the labels and indices and fill in the values that are allowed.
+                for label_index, label in labels.items():
+                    if len(label.split("-")) == 1:
+                        upos_label_mask[label_index] = 1
+                        continue
+                    label_lexcat = label.split("-")[1]
+                    if not label.startswith("O-") and not label.startswith("o-"):
+                        # Label does not start with O-/o-, always allowed.
+                        upos_label_mask[label_index] = 1
+                    elif label_lexcat in self._upos_to_allowed_lexcats[upos]:
+                        # Label starts with O-/o-, but the lexcat is in allowed
+                        # lexcats for the current upos.
+                        upos_label_mask[label_index] = 1
+                self._upos_to_label_mask[upos] = upos_label_mask
 
         self.include_start_end_transitions = include_start_end_transitions
         self.crf = ConditionalRandomField(
@@ -187,30 +193,34 @@ class StreusleTagger(Model):
 
         logits = self.tag_projection_layer(encoded_text)
 
-        # List of length (batch_size,), where each inner list is a list of
-        # the UPOS tags for the associated token sequence.
-        batch_upos_tags = [instance_metadata["upos_tags"] for instance_metadata in metadata]
+        if self.use_upos_constraints:
+            # List of length (batch_size,), where each inner list is a list of
+            # the UPOS tags for the associated token sequence.
+            batch_upos_tags = [instance_metadata["upos_tags"] for instance_metadata in metadata]
 
-        # Get a (batch_size, max_sequence_length, num_tags) mask with "1" in
-        # tags that are allowed for a given UPOS, and "0" for tags that are
-        # disallowed for a given UPOS.
-        batch_upos_constraint_mask = self.get_upos_constraint_mask(batch_upos_tags=batch_upos_tags)
-        constrained_logits = util.replace_masked_values(logits,
-                                                        batch_upos_constraint_mask,
-                                                        -1e32)
+            # Get a (batch_size, max_sequence_length, num_tags) mask with "1" in
+            # tags that are allowed for a given UPOS, and "0" for tags that are
+            # disallowed for a given UPOS.
+            batch_upos_constraint_mask = self.get_upos_constraint_mask(batch_upos_tags=batch_upos_tags)
+            constrained_logits = util.replace_masked_values(logits,
+                                                            batch_upos_constraint_mask,
+                                                            -1e32)
+        else:
+            constrained_logits = logits
 
         best_paths = self.crf.viterbi_tags(constrained_logits, mask)
-
         # Just get the tags and ignore the score.
         predicted_tags = [x for x, y in best_paths]
 
         output = {
-                "constrained_logits": constrained_logits,
                 "mask": mask,
                 "tags": predicted_tags,
-                "upos_tags": batch_upos_tags,
                 "tokens": [instance_metadata["tokens"] for instance_metadata in metadata]
         }
+
+        if self.use_upos_constraints:
+            output["constrained_logits"] = constrained_logits
+            output["upos_tags"] = batch_upos_tags
 
         if tags is not None:
             # Add negative log-likelihood as loss
