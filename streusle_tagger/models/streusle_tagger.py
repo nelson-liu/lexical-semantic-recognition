@@ -244,9 +244,11 @@ class StreusleTagger(Model):
             # List of length (batch_size,), where each inner list is a list of
             # the lemmas for the associated token sequence.
             if self.use_lemma_constraints:
-                batch_lemmas = [instance_metadata.get("lemmas", None) for instance_metadata in metadata]
+                batch_lemmas = [instance_metadata["lemmas"] for
+                                instance_metadata in metadata]
             else:
-                batch_lemmas = [None] * len(metadata)
+                batch_lemmas = [([None] * len(instance_metadata["upos_tags"])) for
+                                instance_metadata in metadata]
 
             # Get a (batch_size, max_sequence_length, num_tags) mask with "1" in
             # tags that are allowed for a given UPOS, and "0" for tags that are
