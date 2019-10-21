@@ -15,7 +15,7 @@ class StreusleTaggerTest(ModelTestCase):
 
     def test_simple_tagger_no_constraints_can_train_save_and_load(self):
         self.ensure_model_can_train_save_and_load(
-            'fixtures/streusle_tagger/experiment_no_constraints.json')
+            'fixtures/streusle_tagger/experiment_no_upos_constraints.json')
 
     @flaky
     def test_batch_predictions_are_consistent(self):
