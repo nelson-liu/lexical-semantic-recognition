@@ -155,7 +155,7 @@ class StreusleTagger(Model):
                         if not label.startswith("O-") and not label.startswith("o-"):
                             # Label does not start with O-/o-, so we don't deal with it here
                             continue
-                        elif label_lexcat in self._lemma_to_allowed_lexcats[lemma][upos_tag]:
+                        if label_lexcat in self._lemma_to_allowed_lexcats[lemma][upos_tag]:
                             # Label starts with O-/o-, but the lexcat is in allowed
                             # lexcats for the current upos.
                             lemma_upos_label_mask[label_index] = 1
@@ -348,7 +348,8 @@ class StreusleTagger(Model):
                 upos_constraint = self._upos_to_label_mask[timestep_upos_tag]
                 lemma_constraint = self._lemma_upos_to_label_mask.get((timestep_lemma, timestep_upos_tag),
                                                                       torch.zeros_like(upos_constraint))
-                example_constraint_mask[timestep_index] = (upos_constraint.long() | lemma_constraint.long()).float()
+                example_constraint_mask[timestep_index] = (upos_constraint.long() |
+                                                           lemma_constraint.long()).float()
         return upos_constraint_mask
 
 def get_lemma_allowed_lexcats():
