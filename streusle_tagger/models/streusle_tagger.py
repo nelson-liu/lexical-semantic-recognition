@@ -358,12 +358,18 @@ class StreusleTagger(Model):
 def get_lemma_allowed_lexcats():
     lemmas_to_constraints = {}
     # (POS, LEXCAT)
-    lemmas_to_constraints["for"] = {"SCONJ": ["INF", "INF.P"]}
-    lemmas_to_constraints["to"] = {"PART": ["INF", "INF.P"]}
-    lemmas_to_constraints["be"] = {"AUX": ["V"]}
+    lemmas_to_constraints["for"] = {"SCONJ": {"INF", "INF.P"}}
+    lemmas_to_constraints["to"] = {"PART": {"INF", "INF.P"}}
+    lemmas_to_constraints["be"] = {"AUX": {"V"}}
     lemmas_to_constraints["versus"] = {"ADP": {"CCONJ"}}
     logger.info("Additionally allowed lexcats for each UPOS and each lemma")
-    logger.info(json.dumps(lemmas_to_constraints, indent=2))
+    json_lemmas_to_constraints = {}
+    for lemma in lemmas_to_constraints:
+        json_lemmas_to_constraints[lemma] = dict()
+        for upos in lemmas_to_constraints[lemma]:
+            json_lemmas_to_constraints[lemma][upos] = sorted(list(lemmas_to_constraints[lemma][upos]))
+    logger.info(json.dumps(json_lemmas_to_constraints, indent=2))
+    import pdb; pdb.set_trace()
     return lemmas_to_constraints
 
 def get_upos_allowed_lexcats(stronger_constraints=False):
