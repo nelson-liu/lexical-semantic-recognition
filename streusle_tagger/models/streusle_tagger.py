@@ -369,7 +369,6 @@ def get_lemma_allowed_lexcats():
         for upos in lemmas_to_constraints[lemma]:
             json_lemmas_to_constraints[lemma][upos] = sorted(list(lemmas_to_constraints[lemma][upos]))
     logger.info(json.dumps(json_lemmas_to_constraints, indent=2))
-    import pdb; pdb.set_trace()
     return lemmas_to_constraints
 
 def get_upos_allowed_lexcats(stronger_constraints=False):
