@@ -373,8 +373,8 @@ def get_upos_allowed_lexcats(stronger_constraints=False):
         is false, then LEXCAT "AUX" will be marked as allowed for upos "V".
     """
     if stronger_constraints:
-        print("Using UPOS constraints that are stronger than necessary "
-              "(probably because we are also using lemma constraints).")
+        logger.info("Using UPOS constraints that are stronger than necessary "
+                    "(probably because we are also using lemma constraints).")
     # pylint: disable=too-many-return-statements
     def is_allowed(upos, lexcat, stronger):
         if lexcat.endswith('!@'):
