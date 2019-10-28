@@ -32,17 +32,23 @@ class StreusleDatasetReader(DatasetReader):
     use_predicted_upos: ``bool``, optional (default=``False``)
         Use predicted UPOS tags from StanfordNLP instead of the gold
         UPOS tags in the STREUSLE data.
+    use_predicted_lemmas: ``bool``, optional (default=``False``)
+        Use predicted lemmas from StanfordNLP instead of the gold
+        lemmas in the STREUSLE data.
     """
     def __init__(self,
                  token_indexers: Dict[str, TokenIndexer] = None,
                  label_namespace: str = "labels",
                  use_predicted_upos: bool = False,
+                 use_predicted_lemmas: bool = False,
                  lazy: bool = False) -> None:
         super().__init__(lazy=lazy)
         self._token_indexers = token_indexers or {'tokens': SingleIdTokenIndexer()}
         self._use_predicted_upos = use_predicted_upos
+        self._use_predicted_lemmas = use_predicted_lemmas
         # We initialize this in text_to_instance, if necessary.
         self._upos_predictor = None
+        self._lemma_predictor = None
         self.label_namespace = label_namespace
 
     @overrides
@@ -58,16 +64,21 @@ class StreusleDatasetReader(DatasetReader):
                 tokens = [x["word"] for x in instance["toks"]]
                 # Get their associated upos
                 upos_tags = [x["upos"] for x in instance["toks"]]
+
+                # Get their associated lemma
+                lemmas = [x["lemma"] for x in instance["toks"]]
                 # Get their associated lextag
                 labels = [x["lextag"] for x in instance["toks"]]
                 yield self.text_to_instance(tokens=tokens,
                                             upos_tags=upos_tags,
+                                            lemmas=lemmas,
                                             streusle_lextags=labels)
 
     @overrides
     def text_to_instance(self, # type: ignore
                          tokens: List[str],
                          upos_tags: List[str] = None,
+                         lemmas: List[str] = None,
                          streusle_lextags: List[str] = None) -> Instance:
         """
         We take `pre-tokenized` input here, because we don't have a tokenizer in this class.
@@ -79,6 +90,10 @@ class StreusleDatasetReader(DatasetReader):
         upos_tags : ``List[str]``, optional, (default = None).
             The upos_tags for the tokens in a given sentence. If None,
             we use StanfordNLP to predict them. If self._use_predicted_upos,
+            we use StanfordNLP to predict them (ignoring any provided here).
+        lemmas : ``List[str]``, optional, (default = None).
+            The lemmas for the tokens in a given sentence. If None,
+            we use StanfordNLP to predict them. If self._use_predicted_lemmas,
             we use StanfordNLP to predict them (ignoring any provided here).
         streusle_lextags : ``List[str]``, optional, (default = None).
             The STREUSLE lextags associated with a token.
@@ -106,6 +121,17 @@ class StreusleDatasetReader(DatasetReader):
         # Check number of UPOS tags equals number of tokens.
         assert len(upos_tags) == len(tokens)
         metadata["upos_tags"] = upos_tags
+
+        if self._use_predicted_lemmas or lemmas is None:
+            if self._lemma_predictor is None:
+                # Initialize LEMMAS predictor.
+                self._lemma_predictor = stanfordnlp.Pipeline(processors="tokenize,lemma",
+                                                             tokenize_pretokenized=True)
+            doc = self._lemma_predictor([tokens])
+            lemmas = [word.lemma for sent in doc.sentences for word in sent.words]
+        # Check number of LEMMAS tags equals number of tokens.
+        assert len(lemmas) == len(tokens)
+        metadata["lemmas"] = lemmas
 
         fields["metadata"] = MetadataField(metadata)
         # Add "tag label" to instance
