@@ -16,6 +16,8 @@
   "validation_data_path": "fixtures/data/streusle.json",
   "model": {
     "type": "streusle_tagger",
+    "use_upos_constraints": true,
+    "use_lemma_constraints": true,
     "text_field_embedder": {
       "token_embedders": {
         "tokens": {
