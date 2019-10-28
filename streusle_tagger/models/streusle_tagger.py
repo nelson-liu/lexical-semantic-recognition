@@ -105,8 +105,9 @@ class StreusleTagger(Model):
 
         if self.use_upos_constraints:
             # Get a dict with a mapping from UPOS to allowed LEXCAT here.
-            self._upos_to_allowed_lexcats: Dict[str, Set[str]] = get_upos_allowed_lexcats()
-            # Dict with a amapping from UPOS to dictionary of [UPOS, list of allowed LEXCATS]
+            self._upos_to_allowed_lexcats: Dict[str, Set[str]] = get_upos_allowed_lexcats(
+                stronger_constraints=self.use_lemma_constraints)
+            # Dict with a amapping from UPOS to dictionary of [UPOS, list of additionally allowed LEXCATS]
             self._lemma_to_allowed_lexcats: Dict[str, Dict[str, List[str]]] = get_lemma_allowed_lexcats()
 
             # Use labels and the upos_to_allowed_lexcats to get a dict with
@@ -362,9 +363,20 @@ def get_lemma_allowed_lexcats():
     lemmas_to_constraints["versus"] = {"ADP": {"CCONJ"}}
     return lemmas_to_constraints
 
-def get_upos_allowed_lexcats():
+def get_upos_allowed_lexcats(stronger_constraints=False):
+    """
+    stronger_constraints: bool (optional, default=False)
+        If True, return mark a LEXCAT as allowed for a particular UPOS
+        only if the LEXCAT is _always_a llowed for that UPOS. For instance,
+        if this is True, then LEXCAT "AUX" will not be marked as allowed for
+        upos "V", since it's only ok when the lemma is "be". If the argument
+        is false, then LEXCAT "AUX" will be marked as allowed for upos "V".
+    """
+    if stronger_constraints:
+        print("Using UPOS constraints that are stronger than necessary "
+              "(probably because we are also using lemma constraints).")
     # pylint: disable=too-many-return-statements
-    def is_allowed(upos, lexcat):
+    def is_allowed(upos, lexcat, stronger):
         if lexcat.endswith('!@'):
             return True
         if upos == lexcat:
@@ -376,29 +388,30 @@ def get_upos_allowed_lexcats():
             return True
         mismatch_ok = False
         if lexcat.startswith('INF'):
-            if upos == "SCONJ":
+            # LC INF/INF.P and UPOS SCONJ are only ok if the lemma is "for".
+            if upos == "SCONJ" and stronger is False:
                 mismatch_ok = True
-            # INF and PART are only ok if the lemma is "to"
-            # elif upos == "PART":
-            #     mismatch_ok = True
-        # AUX and V are ok only if the lemma is "be"
-        # if upos =="AUX" and lexcat == "V":
-        #     mismatch_ok = True
+            # LC INF/INF.P and UPOS PART are only ok if the lemma is "to".
+            if upos == "PART" and stronger is False:
+                mismatch_ok = True
+        # LC V and UPOS AUX are ok only if the lemma is "be".
+        if upos =="AUX" and lexcat == "V" and stronger is False:
+            mismatch_ok = True
         if upos == 'PRON':
             if lexcat in ('PRON', 'PRON.POSS'):
                 mismatch_ok = True
         if lexcat == 'ADV':
             if upos in ('ADV', 'PART'):
                 mismatch_ok = True
-        # ADP and CCONJ are only ok if the lemma is "versus"
-        # if upos == 'ADP' and lexcat == 'CCONJ':
-        #     mismatch_ok = True
+        # LC CCONJ and UPOS ADP are ok only if the lemma is "versus"
+        if upos == 'ADP' and lexcat == 'CCONJ' and stronger is False:
+            mismatch_ok = True
         return mismatch_ok
 
     allowed_combinations = {}
     for lexcat in ALL_LEXCATS:
         for universal_pos in ALL_UPOS:
-            if is_allowed(universal_pos, lexcat):
+            if is_allowed(universal_pos, lexcat, stronger_constraints):
                 if universal_pos not in allowed_combinations:
                     allowed_combinations[universal_pos] = set()
                 allowed_combinations[universal_pos].add(lexcat)
