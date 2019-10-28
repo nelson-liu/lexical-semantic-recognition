@@ -358,9 +358,12 @@ class StreusleTagger(Model):
 def get_lemma_allowed_lexcats():
     lemmas_to_constraints = {}
     # (POS, LEXCAT)
-    lemmas_to_constraints["to"] = {"PART": ["INF"]}
+    lemmas_to_constraints["for"] = {"SCONJ": ["INF", "INF.P"]}
+    lemmas_to_constraints["to"] = {"PART": ["INF", "INF.P"]}
     lemmas_to_constraints["be"] = {"AUX": ["V"]}
     lemmas_to_constraints["versus"] = {"ADP": {"CCONJ"}}
+    logger.info("Additionally allowed lexcats for each UPOS and each lemma")
+    logger.info(json.dumps(lemmas_to_constraints, indent=2))
     return lemmas_to_constraints
 
 def get_upos_allowed_lexcats(stronger_constraints=False):
