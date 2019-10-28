@@ -106,7 +106,7 @@ class StreusleTagger(Model):
         if self.use_upos_constraints:
             # Get a dict with a mapping from UPOS to allowed LEXCAT here.
             self._upos_to_allowed_lexcats: Dict[str, Set[str]] = get_upos_allowed_lexcats(
-                stronger_constraints=self.use_lemma_constraints)
+                    stronger_constraints=self.use_lemma_constraints)
             # Dict with a amapping from UPOS to dictionary of [UPOS, list of additionally allowed LEXCATS]
             self._lemma_to_allowed_lexcats: Dict[str, Dict[str, List[str]]] = get_lemma_allowed_lexcats()
 
@@ -395,7 +395,7 @@ def get_upos_allowed_lexcats(stronger_constraints=False):
             if upos == "PART" and stronger is False:
                 mismatch_ok = True
         # LC V and UPOS AUX are ok only if the lemma is "be".
-        if upos =="AUX" and lexcat == "V" and stronger is False:
+        if upos == "AUX" and lexcat == "V" and stronger is False:
             mismatch_ok = True
         if upos == 'PRON':
             if lexcat in ('PRON', 'PRON.POSS'):
