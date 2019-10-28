@@ -4,7 +4,7 @@
     "token_indexers": {
         "bert": {
             "type": "pretrained_transformer",
-            "pretrained_model": "roberta-base"
+            "pretrained_model": "roberta-large"
         }
     }
   },
