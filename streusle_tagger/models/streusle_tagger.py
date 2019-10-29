@@ -9,7 +9,7 @@ from allennlp.modules import ConditionalRandomField, FeedForward
 from allennlp.models.model import Model
 from allennlp.nn import InitializerApplicator, RegularizerApplicator
 import allennlp.nn.util as util
-from allennlp.training.metrics import CategoricalAccuracy
+from allennlp.training.metrics import BooleanAccuracy, CategoricalAccuracy
 import numpy
 from overrides import overrides
 import torch
@@ -175,7 +175,8 @@ class StreusleTagger(Model):
                 "ss_accuracy": CategoricalAccuracy(),
                 "ss_accuracy3": CategoricalAccuracy(top_k=3),
                 "ss2_accuracy": CategoricalAccuracy(),
-                "ss2_accuracy3": CategoricalAccuracy(top_k=3)
+                "ss2_accuracy3": CategoricalAccuracy(top_k=3),
+                "combined_em_accuracy": BooleanAccuracy(),
         }
         if encoder is not None:
             check_dimensions_match(text_field_embedder.get_output_dim(), encoder.get_input_dim(),
@@ -319,6 +320,14 @@ class StreusleTagger(Model):
             ss2_nll = util.sequence_cross_entropy_with_logits(ss2_logits, ss2_tags, mask)
             self.metrics["ss2_accuracy"](ss2_class_probabilities, ss2_tags, mask.float())
             self.metrics["ss2_accuracy3"](ss2_class_probabilities, ss2_tags, mask.float())
+
+            # Shape: (batch_size, sequence_length, 3)
+            # 3 because there is one number of mwe_lexcat label, one for ss, and one for ss2
+            combined_predictions = torch.stack([mwe_lexcat_logits.argmax(-1),
+                                                ss_logits.argmax(-1),
+                                                ss2_logits.argmax(-1)], dim=-1)
+            combined_gold = torch.stack([mwe_lexcat_tags, ss_tags, ss2_tags], dim=-1)
+            self.metrics["combined_em_accuracy"](combined_predictions, combined_gold)
 
             # Aggregate losses
             output["loss"] = mwe_lexcat_nll + ss_nll + ss2_nll
