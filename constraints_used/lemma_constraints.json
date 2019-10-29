@@ -19,6 +19,9 @@
   "versus": {
     "ADP": [
       "CCONJ"
+    ],
+    "SCONJ": [
+      "CCONJ"
     ]
   }
 }
