@@ -368,6 +368,25 @@ class StreusleTagger(Model):
             ss2_tags = ss2_tags[:mask.sum()]
             all_ss2_tags.append(ss2_tags)
         output_dict["ss2_tags"] = all_ss2_tags
+        # Construct the lextags from the predicted "mwe_lexcat_tags", "ss2_tags", and "ss_tags"
+        all_lextags = []
+        assert len(output_dict["mwe_lexcat_tags"]) == len(output_dict["ss_tags"])
+        assert len(output_dict["ss_tags"]) == len(output_dict["ss2_tags"])
+        for mwe_lexcat_tags, ss_tags, ss2_tags in zip(output_dict["mwe_lexcat_tags"],
+                                                      output_dict["ss_tags"],
+                                                      output_dict["ss2_tags"]):
+            lextags = []
+            assert len(mwe_lexcat_tags) == len(ss_tags)
+            assert len(ss_tags) == len(ss2_tags)
+            for mwe_lexcat_tag, ss_tag, ss2_tag in zip(mwe_lexcat_tags, ss_tags, ss2_tags):
+                lextag = mwe_lexcat_tag
+                if ss_tag != "@@<NO_SS>@@":
+                    lextag = f"{lextag}-{ss_tag}"
+                    if ss2_tag != "@@<NO_SS2>@@":
+                        lextag = f"{lextag}|{ss2_tag}"
+                lextags.append(lextag)
+            all_lextags.append(lextags)
+        output_dict["lextags"] = all_lextags
         return output_dict
 
     @overrides
