@@ -2,10 +2,6 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import json
 import logging
 
-from overrides import overrides
-import torch
-from torch.nn.modules.linear import Linear
-
 from allennlp.common.checks import check_dimensions_match, ConfigurationError
 from allennlp.data import Vocabulary
 from allennlp.modules import Seq2SeqEncoder, TimeDistributed, TextFieldEmbedder
@@ -14,6 +10,11 @@ from allennlp.models.model import Model
 from allennlp.nn import InitializerApplicator, RegularizerApplicator
 import allennlp.nn.util as util
 from allennlp.training.metrics import CategoricalAccuracy
+import numpy
+from overrides import overrides
+import torch
+from torch.nn.modules.linear import Linear
+from torch.nn.functional import softmax
 
 ALL_UPOS = {'X', 'INTJ', 'VERB', 'ADV', 'CCONJ', 'PUNCT', 'ADP',
             'NOUN', 'SYM', 'ADJ', 'PROPN', 'DET', 'PART', 'PRON', 'SCONJ', 'NUM', 'AUX'}
@@ -40,9 +41,6 @@ class StreusleTagger(Model):
         Used to embed the tokens ``TextField`` we get as input to the model.
     encoder : ``Seq2SeqEncoder``, optional (default=``None``)
         The encoder that we will use in between embedding tokens and predicting output tags.
-    label_namespace : ``str``, optional (default=``labels``)
-        This is needed to constrain the CRF decoding.
-        Unless you did something unusual, the default value should be what you want.
     feedforward : ``FeedForward``, optional, (default = None).
         An optional feedforward layer to apply after the encoder.
     include_start_end_transitions : ``bool``, optional (default=``True``)
@@ -63,7 +61,6 @@ class StreusleTagger(Model):
     def __init__(self, vocab: Vocabulary,
                  text_field_embedder: TextFieldEmbedder,
                  encoder: Seq2SeqEncoder = None,
-                 label_namespace: str = "labels",
                  feedforward: Optional[FeedForward] = None,
                  include_start_end_transitions: bool = True,
                  dropout: Optional[float] = None,
@@ -73,9 +70,11 @@ class StreusleTagger(Model):
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
 
-        self.label_namespace = label_namespace
         self.text_field_embedder = text_field_embedder
-        self.num_tags = self.vocab.get_vocab_size(label_namespace)
+        self.num_mwe_lexcat_tags = self.vocab.get_vocab_size("mwe_lexcat_tags")
+        self.num_ss_tags = self.vocab.get_vocab_size("ss_tags")
+        self.num_ss2_tags = self.vocab.get_vocab_size("ss2_tags")
+
         self.encoder = encoder
         if self.encoder is not None:
             encoder_output_dim = self.encoder.get_output_dim()
@@ -91,11 +90,14 @@ class StreusleTagger(Model):
             output_dim = feedforward.get_output_dim()
         else:
             output_dim = encoder_output_dim
-        self.tag_projection_layer = TimeDistributed(Linear(output_dim,
-                                                           self.num_tags))
-        self._label_namespace = label_namespace
-        labels = self.vocab.get_index_to_token_vocabulary(self._label_namespace)
-        constraints = streusle_allowed_transitions(labels)
+        self.mwe_lexcat_tag_projection_layer = TimeDistributed(Linear(output_dim,
+                                                                      self.num_mwe_lexcat_tags))
+        self.ss_tag_projection_layer = TimeDistributed(Linear(output_dim,
+                                                              self.num_ss_tags))
+        self.ss2_tag_projection_layer = TimeDistributed(Linear(output_dim,
+                                                               self.num_ss2_tags))
+        mwe_lexcat_tags = self.vocab.get_index_to_token_vocabulary("mwe_lexcat_tags")
+        constraints = streusle_allowed_transitions(mwe_lexcat_tags)
 
         self.use_upos_constraints = use_upos_constraints
         self.use_lemma_constraints = use_lemma_constraints
@@ -116,10 +118,10 @@ class StreusleTagger(Model):
             self._upos_to_label_mask: Dict[str, torch.Tensor] = {}
             for upos in ALL_UPOS:
                 # Shape: (num_labels,)
-                upos_label_mask = torch.zeros(len(labels),
-                                              device=next(self.tag_projection_layer.parameters()).device)
+                upos_label_mask = torch.zeros(len(mwe_lexcat_tags),
+                                              device=next(self.mwe_lexcat_tag_projection_layer.parameters()).device)
                 # Go through the labels and indices and fill in the values that are allowed.
-                for label_index, label in labels.items():
+                for label_index, label in mwe_lexcat_tags.items():
                     if len(label.split("-")) == 1:
                         upos_label_mask[label_index] = 1
                         continue
@@ -145,10 +147,10 @@ class StreusleTagger(Model):
                     if upos_tag not in self._lemma_to_allowed_lexcats[lemma]:
                         continue
                     # Shape: (num_labels,)
-                    lemma_upos_label_mask = torch.zeros(len(labels),
-                                                        device=next(self.tag_projection_layer.parameters()).device)
+                    lemma_upos_label_mask = torch.zeros(len(mwe_lexcat_tags),
+                                                        device=next(self.mwe_lexcat_tag_projection_layer.parameters()).device)
                     # Go through the labels and indices and fill in the values that are allowed.
-                    for label_index, label in labels.items():
+                    for label_index, label in mwe_lexcat_tags.items():
                         # For ~i, etc. tags. We don't deal with them here.
                         if len(label.split("-")) == 1:
                             continue
@@ -164,12 +166,16 @@ class StreusleTagger(Model):
 
         self.include_start_end_transitions = include_start_end_transitions
         self.crf = ConditionalRandomField(
-                self.num_tags, constraints,
+                self.num_mwe_lexcat_tags, constraints,
                 include_start_end_transitions=include_start_end_transitions)
 
         self.metrics = {
-                "accuracy": CategoricalAccuracy(),
-                "accuracy3": CategoricalAccuracy(top_k=3)
+                "mwe_lexcat_accuracy": CategoricalAccuracy(),
+                "mwe_lexcat_accuracy3": CategoricalAccuracy(top_k=3),
+                "ss_accuracy": CategoricalAccuracy(),
+                "ss_accuracy3": CategoricalAccuracy(top_k=3),
+                "ss2_accuracy": CategoricalAccuracy(),
+                "ss2_accuracy3": CategoricalAccuracy(top_k=3)
         }
         if encoder is not None:
             check_dimensions_match(text_field_embedder.get_output_dim(), encoder.get_input_dim(),
@@ -182,7 +188,9 @@ class StreusleTagger(Model):
     @overrides
     def forward(self,  # type: ignore
                 tokens: Dict[str, torch.LongTensor],
-                tags: torch.LongTensor = None,
+                mwe_lexcat_tags: torch.LongTensor = None,
+                ss_tags: torch.LongTensor = None,
+                ss2_tags: torch.LongTensor = None,
                 metadata: List[Dict[str, Any]] = None) -> Dict[str, torch.Tensor]:
         # pylint: disable=arguments-differ
         """
@@ -197,8 +205,14 @@ class StreusleTagger(Model):
             sequence.  The dictionary is designed to be passed directly to a ``TextFieldEmbedder``,
             which knows how to combine different word representations into a single vector per
             token in your input.
-        tags : ``torch.LongTensor``, optional (default = ``None``)
-            A torch tensor representing the sequence of integer gold lextags of shape
+        mwe_lexcat_tags : ``torch.LongTensor``, optional (default = ``None``)
+            A torch tensor representing the sequence of integer gold mwe-lexcat tags of shape
+            ``(batch_size, num_tokens)``.
+        ss_tags : ``torch.LongTensor``, optional (default = ``None``)
+            A torch tensor representing the sequence of integer gold ss tags of shape
+            ``(batch_size, num_tokens)``.
+        ss2_tags : ``torch.LongTensor``, optional (default = ``None``)
+            A torch tensor representing the sequence of integer gold ss2 tags of shape
             ``(batch_size, num_tokens)``.
         metadata : ``List[Dict[str, Any]]``, optional, (default = None)
             Additional information about the example.
@@ -233,10 +247,12 @@ class StreusleTagger(Model):
         if self.feedforward is not None:
             encoded_text = self.feedforward(encoded_text)
 
-        logits = self.tag_projection_layer(encoded_text)
+        mwe_lexcat_logits = self.mwe_lexcat_tag_projection_layer(encoded_text)
+        ss_logits = self.ss_tag_projection_layer(encoded_text)
+        ss2_logits = self.ss2_tag_projection_layer(encoded_text)
 
         # initial mask is unmasked
-        batch_upos_constraint_mask = torch.ones_like(logits)
+        batch_upos_constraint_mask = torch.ones_like(mwe_lexcat_logits)
         if self.use_upos_constraints:
             # List of length (batch_size,), where each inner list is a list of
             # the UPOS tags for the associated token sequence.
@@ -257,38 +273,55 @@ class StreusleTagger(Model):
             batch_upos_constraint_mask = self.get_upos_constraint_mask(batch_upos_tags=batch_upos_tags,
                                                                        batch_lemmas=batch_lemmas)
 
-        constrained_logits = util.replace_masked_values(logits,
-                                                        batch_upos_constraint_mask,
-                                                        -1e32)
+        constrained_mwe_lexcat_logits = util.replace_masked_values(mwe_lexcat_logits,
+                                                                   batch_upos_constraint_mask,
+                                                                   -1e8)
 
-        best_paths = self.crf.viterbi_tags(constrained_logits, mask)
+        best_paths = self.crf.viterbi_tags(mwe_lexcat_logits, mask)
         # Just get the tags and ignore the score.
-        predicted_tags = [x for x, y in best_paths]
+        predicted_mwe_lexcat_tags = [x for x, y in best_paths]
 
         output = {
                 "mask": mask,
-                "tags": predicted_tags,
+                "mwe_lexcat_tags": predicted_mwe_lexcat_tags,
                 "tokens": [instance_metadata["tokens"] for instance_metadata in metadata]
         }
 
         if self.use_upos_constraints:
-            output["constrained_logits"] = constrained_logits
+            output["constrained_mwe_lexcat_logits"] = constrained_mwe_lexcat_logits
             output["upos_tags"] = batch_upos_tags
 
-        if tags is not None:
-            # Add negative log-likelihood as loss
-            log_likelihood = self.crf(constrained_logits, tags, mask)
-            output["loss"] = -log_likelihood
+        ss_class_probabilities = softmax(ss_logits, dim=-1)
+        output["ss_class_probabilities"] = ss_class_probabilities
+        ss2_class_probabilities = softmax(ss2_logits, dim=-1)
+        output["ss2_class_probabilities"] = ss2_class_probabilities
+
+        if mwe_lexcat_tags is not None and ss_tags is not None and ss2_tags is not None:
+            # Add negative log-likelihood of mwe lexcat tags as loss
+            mwe_lexcat_nll = -self.crf(constrained_mwe_lexcat_logits, mwe_lexcat_tags, mask)
 
             # Represent viterbi tags as "class probabilities" that we can
             # feed into the metrics
-            class_probabilities = constrained_logits * 0.
-            for i, instance_tags in enumerate(predicted_tags):
+            mwe_lexcat_class_probabilities = constrained_mwe_lexcat_logits * 0.
+            for i, instance_tags in enumerate(predicted_mwe_lexcat_tags):
                 for j, tag_id in enumerate(instance_tags):
-                    class_probabilities[i, j, tag_id] = 1
+                    mwe_lexcat_class_probabilities[i, j, tag_id] = 1
+            output["mwe_lexcat_class_probabilities"] = mwe_lexcat_class_probabilities
+            self.metrics["mwe_lexcat_accuracy"](mwe_lexcat_class_probabilities, mwe_lexcat_tags, mask.float())
+            self.metrics["mwe_lexcat_accuracy3"](mwe_lexcat_class_probabilities, mwe_lexcat_tags, mask.float())
 
-            for metric in self.metrics.values():
-                metric(class_probabilities, tags, mask.float())
+            # Add NLL of the ss tags as loss
+            ss_nll = util.sequence_cross_entropy_with_logits(ss_logits, ss_tags, mask)
+            self.metrics["ss_accuracy"](ss_class_probabilities, ss_tags, mask.float())
+            self.metrics["ss_accuracy3"](ss_class_probabilities, ss_tags, mask.float())
+
+            # Add NLL of the ss2 tags as loss
+            ss2_nll = util.sequence_cross_entropy_with_logits(ss2_logits, ss2_tags, mask)
+            self.metrics["ss2_accuracy"](ss2_class_probabilities, ss2_tags, mask.float())
+            self.metrics["ss2_accuracy3"](ss2_class_probabilities, ss2_tags, mask.float())
+
+            # Aggregate losses
+            output["loss"] = mwe_lexcat_nll + ss_nll + ss2_nll
         return output
 
     @overrides
@@ -298,11 +331,43 @@ class StreusleTagger(Model):
         ``output_dict["tags"]`` is a list of lists of tag_ids,
         so we use an ugly nested list comprehension.
         """
-        output_dict["tags"] = [
-                [self.vocab.get_token_from_index(tag, namespace=self.label_namespace)
-                 for tag in instance_tags]
-                for instance_tags in output_dict["tags"]]
+        output_dict["mwe_lexcat_tags"] = [
+                [self.vocab.get_token_from_index(mwe_lexcat_tag, namespace="mwe_lexcat_tags")
+                 for mwe_lexcat_tag in instance_mwe_lexcat_tags]
+                for instance_mwe_lexcat_tags in output_dict["mwe_lexcat_tags"]]
 
+        mask = output_dict["mask"].cpu().data.numpy()
+        all_ss_predictions = output_dict["ss_class_probabilities"]
+        all_ss_predictions = all_ss_predictions.cpu().data.numpy()
+        if all_ss_predictions.ndim == 3:
+            ss_predictions_list = [all_ss_predictions[i] for i in range(all_ss_predictions.shape[0])]
+            mask_list = [mask[i] for i in range(mask.shape[0])]
+        else:
+            ss_predictions_list = [all_ss_predictions]
+            mask_list = [mask]
+        all_ss_tags = []
+        for mask, ss_predictions in zip(mask_list, ss_predictions_list):
+            ss_argmax_indices = numpy.argmax(ss_predictions, axis=-1)
+            ss_tags = [self.vocab.get_token_from_index(x, namespace="ss_tags") for x in ss_argmax_indices]
+            # Remove masked items
+            ss_tags = ss_tags[:mask.sum()]
+            all_ss_tags.append(ss_tags)
+        output_dict["ss_tags"] = all_ss_tags
+
+        all_ss2_predictions = output_dict["ss2_class_probabilities"]
+        all_ss2_predictions = all_ss2_predictions.cpu().data.numpy()
+        if all_ss2_predictions.ndim == 3:
+            ss2_predictions_list = [all_ss2_predictions[i] for i in range(all_ss2_predictions.shape[0])]
+        else:
+            ss2_predictions_list = [all_ss2_predictions]
+        all_ss2_tags = []
+        for mask, ss2_predictions in zip(mask_list, ss2_predictions_list):
+            ss2_argmax_indices = numpy.argmax(ss2_predictions, axis=-1)
+            ss2_tags = [self.vocab.get_token_from_index(x, namespace="ss2_tags") for x in ss2_argmax_indices]
+            # Remove masked items
+            ss2_tags = ss2_tags[:mask.sum()]
+            all_ss2_tags.append(ss2_tags)
+        output_dict["ss2_tags"] = all_ss2_tags
         return output_dict
 
     @overrides
@@ -337,8 +402,8 @@ class StreusleTagger(Model):
         # Shape: (batch_size, max_sequence_length, num_tags)
         upos_constraint_mask = torch.ones(len(batch_upos_tags),
                                           len(max(batch_upos_tags, key=len)),
-                                          self.num_tags,
-                                          device=next(self.tag_projection_layer.parameters()).device) * -1e32
+                                          self.num_mwe_lexcat_tags,
+                                          device=next(self.mwe_lexcat_tag_projection_layer.parameters()).device) * -1e32
         # Iterate over the batch
         for example_index, (example_upos_tags, example_lemmas) in enumerate(
                 zip(batch_upos_tags, batch_lemmas)):
@@ -428,6 +493,7 @@ def get_upos_allowed_lexcats(stronger_constraints=False):
                                  upos, lexcats in allowed_combinations.items()}
     logger.info(json.dumps(json_allowed_combinations, indent=2))
     return allowed_combinations
+
 
 def streusle_allowed_transitions(labels: Dict[int, str]) -> List[Tuple[int, int]]:
     """
