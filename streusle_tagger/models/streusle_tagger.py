@@ -361,7 +361,7 @@ def get_lemma_allowed_lexcats():
     lemmas_to_constraints["for"] = {"SCONJ": {"INF", "INF.P"}}
     lemmas_to_constraints["to"] = {"PART": {"INF", "INF.P"}}
     lemmas_to_constraints["be"] = {"AUX": {"V"}}
-    lemmas_to_constraints["versus"] = {"ADP": {"CCONJ"}}
+    lemmas_to_constraints["versus"] = {"ADP": {"CCONJ"}, "SCONJ": {"CCONJ"}}
     logger.info("Additionally allowed lexcats for each UPOS and each lemma")
     json_lemmas_to_constraints = {}
     for lemma in lemmas_to_constraints:
