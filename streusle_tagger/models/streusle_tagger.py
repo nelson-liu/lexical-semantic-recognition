@@ -327,7 +327,15 @@ class StreusleTagger(Model):
                                                 ss_logits.argmax(-1),
                                                 ss2_logits.argmax(-1)], dim=-1)
             combined_gold = torch.stack([mwe_lexcat_tags, ss_tags, ss2_tags], dim=-1)
-            self.metrics["combined_em_accuracy"](combined_predictions, combined_gold)
+            for instance_mask, instance_predictions, instance_gold in zip(mask,
+                                                                          combined_predictions,
+                                                                          combined_gold):
+                for token_mask, token_prediction, token_gold in zip(instance_mask,
+                                                                    instance_predictions,
+                                                                    instance_gold):
+                    # Only calculate accuracy on unmasked items.
+                    if token_mask.item() == 1:
+                        self.metrics["combined_em_accuracy"](token_prediction, token_gold)
 
             # Aggregate losses
             output["loss"] = mwe_lexcat_nll + ss_nll + ss2_nll
