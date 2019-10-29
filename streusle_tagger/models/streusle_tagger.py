@@ -403,7 +403,7 @@ class StreusleTagger(Model):
                         lextag = f"{lextag}|{ss2_tag}"
                 lextags.append(lextag)
             all_lextags.append(lextags)
-        output_dict["lextags"] = all_lextags
+        output_dict["tags"] = all_lextags
         return output_dict
 
     @overrides
