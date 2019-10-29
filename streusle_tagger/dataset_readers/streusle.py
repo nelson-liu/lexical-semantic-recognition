@@ -27,8 +27,6 @@ class StreusleDatasetReader(DatasetReader):
         are pre-tokenized in the data file.
     lazy : ``bool``, optional, (default = ``False``)
         Whether or not instances can be consumed lazily.
-    label_namespace: ``str``, optional (default=``labels``)
-        Specifies the namespace for the chosen ``tag_label``.
     use_predicted_upos: ``bool``, optional (default=``False``)
         Use predicted UPOS tags from StanfordNLP instead of the gold
         UPOS tags in the STREUSLE data.
@@ -38,7 +36,6 @@ class StreusleDatasetReader(DatasetReader):
     """
     def __init__(self,
                  token_indexers: Dict[str, TokenIndexer] = None,
-                 label_namespace: str = "labels",
                  use_predicted_upos: bool = False,
                  use_predicted_lemmas: bool = False,
                  lazy: bool = False) -> None:
@@ -49,7 +46,6 @@ class StreusleDatasetReader(DatasetReader):
         # We initialize this in text_to_instance, if necessary.
         self._upos_predictor = None
         self._lemma_predictor = None
-        self.label_namespace = label_namespace
 
     @overrides
     def _read(self, file_path):
@@ -136,6 +132,29 @@ class StreusleDatasetReader(DatasetReader):
         fields["metadata"] = MetadataField(metadata)
         # Add "tag label" to instance
         if streusle_lextags is not None:
-            fields['tags'] = SequenceLabelField(streusle_lextags, text_field,
-                                                self.label_namespace)
+            mwe_lexcat_tags = []
+            ss_tags = []
+            ss2_tags = []
+            for streusle_lextag in streusle_lextags:
+                split_lextag = streusle_lextag.split("-")
+                mwe_tag = split_lextag[0]
+                lexcat_tag = split_lextag[1] if len(split_lextag) > 1 else None
+                if lexcat_tag is not None:
+                    mwe_lexcat_tag = f"{mwe_tag}-{lexcat_tag}"
+                else:
+                    mwe_lexcat_tag = mwe_tag
+                ss_chunk = split_lextag[2] if len(split_lextag) > 2 else None
+                if ss_chunk is not None:
+                    ss_chunk_split = ss_chunk.split("|")
+                    ss_tag = ss_chunk_split[0]
+                    ss2_tag = ss_chunk_split[1] if len(ss_chunk_split) > 1 else "@@<NO_SS2>@@"
+                else:
+                    ss_tag = "@@<NO_SS>@@"
+                    ss2_tag = "@@<NO_SS2>@@"
+                mwe_lexcat_tags.append(mwe_lexcat_tag)
+                ss_tags.append(ss_tag)
+                ss2_tags.append(ss2_tag)
+            fields['mwe_lexcat_tags'] = SequenceLabelField(mwe_lexcat_tags, text_field, "mwe_lexcat_tags")
+            fields['ss_tags'] = SequenceLabelField(ss_tags, text_field, "ss_tags")
+            fields['ss2_tags'] = SequenceLabelField(ss2_tags, text_field, "ss2_tags")
         return Instance(fields)
