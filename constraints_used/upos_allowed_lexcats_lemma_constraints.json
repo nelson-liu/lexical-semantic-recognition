@@ -1,0 +1,60 @@
+{
+  "PRON": [
+    "PRON",
+    "PRON.POSS"
+  ],
+  "ADJ": [
+    "ADJ"
+  ],
+  "INTJ": [
+    "INTJ"
+  ],
+  "CCONJ": [
+    "CCONJ"
+  ],
+  "NOUN": [
+    "N"
+  ],
+  "PROPN": [
+    "N"
+  ],
+  "NUM": [
+    "NUM"
+  ],
+  "AUX": [
+    "AUX"
+  ],
+  "ADP": [
+    "DISC",
+    "P"
+  ],
+  "ADV": [
+    "ADV",
+    "DISC",
+    "P"
+  ],
+  "SCONJ": [
+    "DISC",
+    "P",
+    "SCONJ"
+  ],
+  "SYM": [
+    "SYM"
+  ],
+  "X": [
+    "X"
+  ],
+  "VERB": [
+    "V"
+  ],
+  "PART": [
+    "ADV",
+    "POSS"
+  ],
+  "PUNCT": [
+    "PUNCT"
+  ],
+  "DET": [
+    "DET"
+  ]
+}

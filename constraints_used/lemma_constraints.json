@@ -1,0 +1,24 @@
+{
+  "for": {
+    "SCONJ": [
+      "INF",
+      "INF.P"
+    ]
+  },
+  "to": {
+    "PART": [
+      "INF",
+      "INF.P"
+    ]
+  },
+  "be": {
+    "AUX": [
+      "V"
+    ]
+  },
+  "versus": {
+    "ADP": [
+      "CCONJ"
+    ]
+  }
+}
