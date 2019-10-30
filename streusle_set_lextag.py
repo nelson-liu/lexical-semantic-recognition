@@ -17,26 +17,27 @@ class SSMapper:
         return coarsen_pss(ss, self.depth) if ss.startswith('p.') else ss
 
 
-def swap_lextags(sents, lextags_lists):
-    for sent, lextags in zip(sents, lextags_lists):
-        for tok, lextag in zip(sent["toks"], lextags):
+def swap_tags(sents, preds):
+    for sent, pred in zip(sents, preds):
+        for tok, lextag, upos in zip(sent["toks"], pred["tags"], pred["upos_tags"]):
             tok["lextag"] = lextag
+            tok["upos"] = upos
         yield sent
 
 
-def load_lextags(lines):
+def load_tags(lines):
     for line in lines:
         try:
-            yield json.loads(line)["tags"]
+            yield json.loads(line)
         except json.decoder.JSONDecodeError:
             yield ast.literal_eval(line)
 
 
 def main(args):
-    with open(args.fname, encoding="utf-8") as f, open(args.lextags, encoding="utf-8") as lextags_lines:
+    with open(args.fname, encoding="utf-8") as f, open(args.lextags, encoding="utf-8") as tags_lines:
         sents = load_sents(f, ss_mapper=SSMapper(args.depth), validate_type=False, validate_pos=False)
-        lextags_lists = load_lextags(lextags_lines)
-        print_json(swap_lextags(sents, lextags_lists))
+        preds = load_tags(tags_lines)
+        print_json(swap_tags(sents, preds))
 
 
 if __name__ == "__main__":
