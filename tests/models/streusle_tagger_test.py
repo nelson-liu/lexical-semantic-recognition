@@ -17,6 +17,10 @@ class StreusleTaggerTest(ModelTestCase):
         self.ensure_model_can_train_save_and_load(
             'fixtures/streusle_tagger/experiment_no_constraints.json')
 
+    def test_simple_tagger_no_constraints_during_training_can_train_save_and_load(self):
+        self.ensure_model_can_train_save_and_load(
+            'fixtures/streusle_tagger/experiment_no_constraints_during_training.json')
+
     def test_simple_tagger_upos_constraints_only_can_train_save_and_load(self):
         self.ensure_model_can_train_save_and_load(
             'fixtures/streusle_tagger/experiment_upos_constraints_only.json')

@@ -53,6 +53,8 @@ class StreusleTagger(Model):
     use_lemma_constraints : ``bool``, optional (default=``True``)
         Whether to use lemma constraints. If True, model shoudl recieve lemmas as input.
         If this is true, then use_upos_constraints must be true as well.
+    train_with_constraints : ``bool``, optional (default=``True``)
+        Whether to use the constraints during training, or only during testing.
     initializer : ``InitializerApplicator``, optional (default=``InitializerApplicator()``)
         Used to initialize the model parameters.
     regularizer : ``RegularizerApplicator``, optional (default=``None``)
@@ -69,6 +71,7 @@ class StreusleTagger(Model):
                  dropout: Optional[float] = None,
                  use_upos_constraints: bool = True,
                  use_lemma_constraints: bool = True,
+                 train_with_constraints: bool = True,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
@@ -76,6 +79,8 @@ class StreusleTagger(Model):
         self.label_namespace = label_namespace
         self.text_field_embedder = text_field_embedder
         self.num_tags = self.vocab.get_vocab_size(label_namespace)
+        self.train_with_constraints = train_with_constraints
+
         self.encoder = encoder
         if self.encoder is not None:
             encoder_output_dim = self.encoder.get_output_dim()
@@ -237,7 +242,9 @@ class StreusleTagger(Model):
 
         # initial mask is unmasked
         batch_upos_constraint_mask = torch.ones_like(logits)
-        if self.use_upos_constraints:
+        # Use constraints only if use_upos_constraints is true and we're either
+        # (1) in evaluate mode or (2) training with constraints.
+        if self.use_upos_constraints and (not self.training or self.train_with_constraints):
             # List of length (batch_size,), where each inner list is a list of
             # the UPOS tags for the associated token sequence.
             batch_upos_tags = [instance_metadata["upos_tags"] for instance_metadata in metadata]
@@ -271,7 +278,7 @@ class StreusleTagger(Model):
                 "tokens": [instance_metadata["tokens"] for instance_metadata in metadata]
         }
 
-        if self.use_upos_constraints:
+        if self.use_upos_constraints and (not self.training or self.train_with_constraints):
             output["constrained_logits"] = constrained_logits
             output["upos_tags"] = batch_upos_tags
 
