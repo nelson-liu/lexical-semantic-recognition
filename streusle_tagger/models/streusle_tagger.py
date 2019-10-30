@@ -278,7 +278,7 @@ class StreusleTagger(Model):
                 "tokens": [instance_metadata["tokens"] for instance_metadata in metadata]
         }
 
-        if self.use_upos_constraints:
+        if self.use_upos_constraints and (not self.training or self.train_with_constraints):
             output["constrained_logits"] = constrained_logits
             output["upos_tags"] = batch_upos_tags
 
