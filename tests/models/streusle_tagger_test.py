@@ -28,7 +28,7 @@ class StreusleTaggerTest(ModelTestCase):
         training_tensors = self.dataset.as_tensor_dict()
         output_dict = self.model(**training_tensors)
         output_dict = self.model.decode(output_dict)
-        for tag_type in ['mwe_lexcat_tags', 'ss_tags', 'ss2_tags', 'lextags']:
+        for tag_type in ['mwe_lexcat_tags', 'ss_tags', 'ss2_tags', 'tags']:
             tags = output_dict[tag_type]
             assert len(tags) == 3
             assert len(tags[0]) == 9
