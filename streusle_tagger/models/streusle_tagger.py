@@ -118,8 +118,9 @@ class StreusleTagger(Model):
             self._upos_to_label_mask: Dict[str, torch.Tensor] = {}
             for upos in ALL_UPOS:
                 # Shape: (num_labels,)
-                upos_label_mask = torch.zeros(len(mwe_lexcat_tags),
-                                              device=next(self.mwe_lexcat_tag_projection_layer.parameters()).device)
+                upos_label_mask = torch.zeros(
+                        len(mwe_lexcat_tags),
+                        device=next(self.mwe_lexcat_tag_projection_layer.parameters()).device)
                 # Go through the labels and indices and fill in the values that are allowed.
                 for label_index, label in mwe_lexcat_tags.items():
                     if len(label.split("-")) == 1:
@@ -147,8 +148,9 @@ class StreusleTagger(Model):
                     if upos_tag not in self._lemma_to_allowed_lexcats[lemma]:
                         continue
                     # Shape: (num_labels,)
-                    lemma_upos_label_mask = torch.zeros(len(mwe_lexcat_tags),
-                                                        device=next(self.mwe_lexcat_tag_projection_layer.parameters()).device)
+                    lemma_upos_label_mask = torch.zeros(
+                            len(mwe_lexcat_tags),
+                            device=next(self.mwe_lexcat_tag_projection_layer.parameters()).device)
                     # Go through the labels and indices and fill in the values that are allowed.
                     for label_index, label in mwe_lexcat_tags.items():
                         # For ~i, etc. tags. We don't deal with them here.
@@ -436,10 +438,11 @@ class StreusleTagger(Model):
         """
         # TODO(nfliu): this is pretty inefficient, maybe there's someway to make it batched?
         # Shape: (batch_size, max_sequence_length, num_tags)
-        upos_constraint_mask = torch.ones(len(batch_upos_tags),
-                                          len(max(batch_upos_tags, key=len)),
-                                          self.num_mwe_lexcat_tags,
-                                          device=next(self.mwe_lexcat_tag_projection_layer.parameters()).device) * -1e32
+        upos_constraint_mask = torch.ones(
+                len(batch_upos_tags),
+                len(max(batch_upos_tags, key=len)),
+                self.num_mwe_lexcat_tags,
+                device=next(self.mwe_lexcat_tag_projection_layer.parameters()).device) * -1e32
         # Iterate over the batch
         for example_index, (example_upos_tags, example_lemmas) in enumerate(
                 zip(batch_upos_tags, batch_lemmas)):
