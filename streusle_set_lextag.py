@@ -1,7 +1,9 @@
-import argparse
 import ast
 import json
 import logging
+
+import argparse
+from itertools import repeat
 
 from conllulex2json import load_sents, print_json
 from supersenses import coarsen_pss
@@ -19,9 +21,10 @@ class SSMapper:
 
 def swap_tags(sents, preds):
     for sent, pred in zip(sents, preds):
-        for tok, lextag, upos in zip(sent["toks"], pred["tags"], pred["upos_tags"]):
+        for tok, lextag, upos in zip(sent["toks"], pred["tags"], pred.get("upos_tags", repeat(None))):
             tok["lextag"] = lextag
-            tok["upos"] = upos
+            if upos is not None:
+                tok["upos"] = upos
         yield sent
 
 
