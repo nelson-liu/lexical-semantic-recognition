@@ -9,7 +9,7 @@ for PRED in "$@"; do
     python streusle_set_lextag.py "$REF" "$PRED" > "$PREFIX"json || exit 1
     python -m json2conllulex "$PREFIX"json > "$PREFIX"conllulex || exit 1
     python -m conllulex2UDlextag "$PREFIX"conllulex > "$PREFIX"UDlextag || exit 1
-    python -m UDlextag2json "$PREFIX"UDlextag > "$PREFIX"autoid.json || exit 1
+    python -m UDlextag2json --no-validate-pos --no-validate-type "$PREFIX"UDlextag > "$PREFIX"autoid.json || exit 1
     #rm -f "$PREFIX"json "$PREFIX"conllulex "$PREFIX"UDlextag
     grep -v '^#' "$PREFIX"conllulex | cut -d"	" -f4 > "$PREFIX"conllu.upos
     paste "$PREFIX"conllu.upos ${REF%lex}.upos > "$PREFIX"conllu.upos.actual_predicted
