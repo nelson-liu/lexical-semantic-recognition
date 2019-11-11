@@ -1,6 +1,7 @@
 git+git://github.com/allenai/allennlp.git@770791a2045d960beaf4e64db867f51e6021afb6
 git+git://github.com/nert-nlp/streusle.git@7294c74edb8b7192bab5ffa48656e1ef63f2b141
 stanfordnlp
+transformers==2.2.1
 
 # Run tests
 pytest
