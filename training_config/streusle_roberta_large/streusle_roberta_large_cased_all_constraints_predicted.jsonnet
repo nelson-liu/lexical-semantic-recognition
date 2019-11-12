@@ -2,7 +2,7 @@
   "dataset_reader": {
     "type": "streusle_roberta",
     "roberta_type": "large",
-    "max_seq_length": 128
+    "max_seq_length": 256
   },
   "train_data_path": "https://raw.githubusercontent.com/nert-nlp/streusle/master/train/streusle.ud_train.json",
   "validation_data_path": "https://raw.githubusercontent.com/nert-nlp/streusle/master/dev/streusle.ud_dev.json",
