@@ -16,7 +16,7 @@ class SequentialArrayField(ArrayField, SequenceField):
                  dtype: np.dtype,
                  sequence_dim: int = 0,
                  padding_value: int = 0) -> None:
-        ArrayField.__init__(self, array=array, padding_value=padding_value)
+        super().__init__(self, array, padding_value=padding_value)
         self._dtype = dtype
         self._sequence_dim = sequence_dim
 
