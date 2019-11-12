@@ -5,10 +5,8 @@ import logging
 
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
-from allennlp.data.fields import Field, MetadataField, TextField, SequenceLabelField
+from allennlp.data.fields import Field, MetadataField, SequenceLabelField
 from allennlp.data.instance import Instance
-from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
-from allennlp.data.tokenizers import Token
 import numpy as np
 from overrides import overrides
 import stanfordnlp
@@ -42,9 +40,6 @@ class StreusleRobertaDatasetReader(DatasetReader):
     use_predicted_lemmas: ``bool``, optional (default=``False``)
         Use predicted lemmas from StanfordNLP instead of the gold
         lemmas in the STREUSLE data.
-    do_lowercase: ``bool``, optional (default=``None``)
-        Whether to lowercase in the tokenizer. If ``None``, this is inferred
-        from the model type.
     """
     def __init__(self,
                  roberta_type: str,
@@ -52,7 +47,6 @@ class StreusleRobertaDatasetReader(DatasetReader):
                  label_namespace: str = "labels",
                  use_predicted_upos: bool = False,
                  use_predicted_lemmas: bool = False,
-                 do_lowercase: bool = None,
                  lazy: bool = False) -> None:
         super().__init__(lazy=lazy)
         self.tokenizer = AutoTokenizer.from_pretrained(f"roberta-{roberta_type}")
@@ -125,12 +119,15 @@ class StreusleRobertaDatasetReader(DatasetReader):
         roberta_inputs = convert_tokens_to_roberta_inputs(tokens=tokens,
                                                           tokenizer=self.tokenizer,
                                                           max_seq_length=self.max_seq_length)
-        metadata = {"tokens": tokens, "token_indices_to_wordpiece_indices": roberta_inputs["token_indices_to_wordpiece_indices"]}
+        metadata = {
+                "tokens": tokens,
+                "token_indices_to_wordpiece_indices": roberta_inputs["token_indices_to_wordpiece_indices"]
+        }
         fields["token_indices_to_wordpiece_indices"] = SequentialArrayField(
-            np.array(roberta_inputs["token_indices_to_wordpiece_indices"], dtype="int64"), "int64")
+                np.array(roberta_inputs["token_indices_to_wordpiece_indices"], dtype="int64"),
+                "int64", padding_value=-1)
         fields["input_ids"] = SequentialArrayField(np.array(roberta_inputs["input_ids"], dtype="int64"), "int64")
         fields["input_mask"] = SequentialArrayField(np.array(roberta_inputs["input_mask"], dtype="int64"), "int64")
-        fields["segment_ids"] = SequentialArrayField(np.array(roberta_inputs["segment_ids"], dtype="int64"), "int64")
 
         if self._use_predicted_upos or upos_tags is None:
             if self._upos_predictor is None:
@@ -157,20 +154,17 @@ class StreusleRobertaDatasetReader(DatasetReader):
         fields["metadata"] = MetadataField(metadata)
         # Add "tag label" to instance
         if streusle_lextags is not None:
-           fields['tags'] = SequenceLabelField(streusle_lextags,
-                                               fields["token_indices_to_wordpiece_indices"],
-                                               self.label_namespace)
+            fields['tags'] = SequenceLabelField(streusle_lextags,
+                                                fields["token_indices_to_wordpiece_indices"],
+                                                self.label_namespace)
         return Instance(fields)
 
 def convert_tokens_to_roberta_inputs(tokens,
                                      tokenizer,
                                      max_seq_length=512,
                                      cls_token=None,
-                                     cls_token_segment_id=0,
                                      sep_token=None,
-                                     pad_token=None,
-                                     pad_token_segment_id=0,
-                                     sequence_a_segment_id=0):
+                                     pad_token=None):
     tokens = deepcopy(tokens)
     if cls_token is None:
         cls_token = tokenizer.cls_token
@@ -195,11 +189,9 @@ def convert_tokens_to_roberta_inputs(tokens,
     # RoBERTa uses an extra separator b/w pairs of sentences
     tokens += [sep_token]
     tokens += [sep_token]
-    segment_ids = [sequence_a_segment_id] * len(tokens)
 
     # Prepend the CLS token.
     tokens = [cls_token] + tokens
-    segment_ids = [cls_token_segment_id] + segment_ids
 
     input_ids = tokenizer.convert_tokens_to_ids(tokens)
 
@@ -211,15 +203,12 @@ def convert_tokens_to_roberta_inputs(tokens,
     padding_length = max_seq_length - len(input_ids)
     input_ids += ([pad_token] * padding_length)
     input_mask += ([0] * padding_length)
-    segment_ids += ([pad_token_segment_id] * padding_length)
 
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
-    assert len(segment_ids) == max_seq_length
 
     return {
-        "token_indices_to_wordpiece_indices": token_indices_to_wordpiece_indices,
-        "input_ids": input_ids,
-        "input_mask": input_mask,
-        "segment_ids": segment_ids
+            "token_indices_to_wordpiece_indices": token_indices_to_wordpiece_indices,
+            "input_ids": input_ids,
+            "input_mask": input_mask
     }

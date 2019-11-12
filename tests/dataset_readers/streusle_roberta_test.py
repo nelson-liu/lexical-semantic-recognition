@@ -25,7 +25,6 @@ class TestStreusleRobertaDatasetReader():
         assert_allclose(fields["input_ids"].array[:12], np.array([0, 17781, 102, 8726, 3, 15954, 23033, 6968,
                                                                   3746, 32376, 2, 2]))
         assert_allclose(fields["input_mask"].array[:12], np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]))
-        assert_allclose(fields["segment_ids"].array, np.zeros(512))
         assert fields["metadata"]["tokens"] == [
                 'Have', 'a', 'real', 'mechanic', 'check', 'before', 'you', 'buy', '!!!!']
         assert fields["metadata"]["upos_tags"] == [
@@ -80,7 +79,6 @@ class TestStreusleRobertaDatasetReader():
         assert_allclose(fields["input_ids"].array[:12], np.array([0, 17781, 102, 8726, 3, 15954, 23033, 6968,
                                                                   3746, 32376, 2, 2]))
         assert_allclose(fields["input_mask"].array[:12], np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]))
-        assert_allclose(fields["segment_ids"].array, np.zeros(512))
         assert fields["metadata"]["tokens"] == [
                 'Have', 'a', 'real', 'mechanic', 'check', 'before', 'you', 'buy', '!!!!']
         assert fields["metadata"]["upos_tags"] == [
