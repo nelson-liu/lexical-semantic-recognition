@@ -174,7 +174,8 @@ def convert_tokens_to_roberta_inputs(tokens,
         pad_token = tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0]
 
     token_indices_to_wordpiece_indices = []
-    wordpiece_tokens = []
+    # Prepend the CLS token.
+    wordpiece_tokens = [cls_token]
     for word in tokens:
         token_indices_to_wordpiece_indices.append(len(wordpiece_tokens))
         word_tokens = tokenizer.tokenize(word)
@@ -191,9 +192,6 @@ def convert_tokens_to_roberta_inputs(tokens,
     # RoBERTa uses an extra separator b/w pairs of sentences
     wordpiece_tokens += [sep_token]
     wordpiece_tokens += [sep_token]
-
-    # Prepend the CLS token.
-    wordpiece_tokens = [cls_token] + wordpiece_tokens
 
     input_ids = tokenizer.convert_tokens_to_ids(wordpiece_tokens)
 

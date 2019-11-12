@@ -21,7 +21,7 @@ class TestStreusleRobertaDatasetReader():
         fields = instance.fields
 
         assert_allclose(fields["token_indices_to_wordpiece_indices"].array,
-                        np.array([0, 1, 2, 3, 6, 7, 8, 9, 10]))
+                        np.array([1, 2, 3, 4, 7, 8, 9, 10, 11]))
         assert_allclose(fields["input_ids"].array[:14], np.array([0, 17781, 102, 8726, 1794, 14717, 636, 15954,
                                                                   23033, 6968, 3746, 32376, 2, 2]))
         assert_allclose(fields["input_mask"].array[:14], np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]))
@@ -75,7 +75,7 @@ class TestStreusleRobertaDatasetReader():
         instance = instances[0]
         fields = instance.fields
         assert_allclose(fields["token_indices_to_wordpiece_indices"].array,
-                        np.array([0, 1, 2, 3, 6, 7, 8, 9, 10]))
+                        np.array([1, 2, 3, 4, 7, 8, 9, 10, 11]))
         assert_allclose(fields["input_ids"].array[:14], np.array([0, 17781, 102, 8726, 1794, 14717, 636, 15954,
                                                                   23033, 6968, 3746, 32376, 2, 2]))
         assert_allclose(fields["input_mask"].array[:14], np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]))
