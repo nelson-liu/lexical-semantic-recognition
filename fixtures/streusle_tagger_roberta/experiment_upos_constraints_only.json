@@ -1,0 +1,32 @@
+{
+  "dataset_reader": {
+    "type": "streusle_roberta",
+    "roberta_type": "base",
+    "max_seq_length": 128
+  },
+  "train_data_path": "fixtures/data/streusle.json",
+  "validation_data_path": "fixtures/data/streusle.json",
+  "model": {
+    "type": "streusle_tagger_roberta",
+    "use_upos_constraints": true,
+    "use_lemma_constraints": false,
+    "roberta_type": "base",
+    "encoder": {
+      "type": "gru",
+      "input_size": 768,
+      "hidden_size": 300,
+      "num_layers": 2,
+      "dropout": 0.0,
+      "bidirectional": true
+    },
+    "regularizer": [
+      ["transitions$", {"type": "l2", "alpha": 0.01}]
+    ]
+  },
+  "iterator": {"type": "basic", "batch_size": 32},
+  "trainer": {
+    "optimizer": "adam",
+    "num_epochs": 5,
+    "cuda_device": -1
+  }
+}
