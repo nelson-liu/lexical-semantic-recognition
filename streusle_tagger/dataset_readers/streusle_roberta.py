@@ -184,8 +184,10 @@ def convert_tokens_to_roberta_inputs(tokens,
     # RoBERTa has 3 special tokens (2 SEP, 1 CLS)
     special_tokens_count = 3
     if len(tokens) > max_seq_length - special_tokens_count:
-        tokens = tokens[:(max_seq_length - special_tokens_count)]
-
+        # Don't truncate, raise an error instead
+        # tokens = tokens[:(max_seq_length - special_tokens_count)]
+        raise ValueError(f"tokens is of length {len(tokens)}, but "
+                         f"max sequence length is {max_seq_length}.")
     # RoBERTa uses an extra separator b/w pairs of sentences
     tokens += [sep_token]
     tokens += [sep_token]
