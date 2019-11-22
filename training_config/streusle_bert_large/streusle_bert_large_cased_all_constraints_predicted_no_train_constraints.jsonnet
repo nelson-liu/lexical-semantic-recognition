@@ -21,7 +21,7 @@
     "text_field_embedder": {
         "allow_unmatched_keys": true,
         "embedder_to_indexer_map": {
-            "bert": ["bert", "bert-offsets"],
+            "bert": ["bert", "bert-offsets"]
         },
         "token_embedders": {
             "bert": {
