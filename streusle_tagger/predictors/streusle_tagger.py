@@ -15,6 +15,8 @@ class StreusleTaggerPredictor(Predictor):
         Expects JSON that looks like ``{"tokens": "[...]", "upos_tags": "[...]"}``.
         """
         tokens = json_dict["tokens"]
-        upos_tags = json_dict.get("upos_tags", None)
+        gold_upos_tags = json_dict.get("upos_tags", None)
+        gold_lemmas = json_dict.get("lemmas", None)
         return self._dataset_reader.text_to_instance(tokens=tokens,
-                                                     upos_tags=upos_tags)
+                                                     upos_tags=gold_upos_tags,
+                                                     lemmas=gold_lemmas)
