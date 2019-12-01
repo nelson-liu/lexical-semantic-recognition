@@ -11,5 +11,6 @@ for modelpath in models/streusle*; do
         --silent \
         --include-package streusle_tagger \
         --predictor streusle-tagger \
+        --cuda-device 0 \
         --batch-size 64
 done
