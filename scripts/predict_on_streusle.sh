@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
 for modelpath in models/streusle*; do
     modelname=$(basename ${modelpath})
     echo "Evaluating ${modelname}"
