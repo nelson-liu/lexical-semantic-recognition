@@ -16,7 +16,7 @@ def main(data_path, output_path):
                 fields = [list(field) for field in zip(*fields)]
                 tokens = fields[1]
                 lemmas = fields[2]
-                upos_tags = fields[3]
+                upos_tags = ["CCONJ" if x == "CONJ" else x for x in fields[3]]
                 dimsum_jsonl.append({
                     "tokens": tokens,
                     "upos_tags": upos_tags,
