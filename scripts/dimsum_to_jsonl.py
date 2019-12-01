@@ -20,7 +20,7 @@ def main(data_path, output_path):
                 dimsum_jsonl.append({
                     "tokens": tokens,
                     "upos_tags": upos_tags,
-                    "lemma": lemmas
+                    "lemmas": lemmas
                 })
 
     print(f"Writing output to {output_path}")
