@@ -17,6 +17,11 @@ def main(data_path, output_path):
                 tokens = fields[1]
                 lemmas = fields[2]
                 upos_tags = ["CCONJ" if x == "CONJ" else x for x in fields[3]]
+                assert len(lemmas) == len(upos_tags)
+                # copulas were tagged as VERB in UDv1 (dimsum tagset) but are AUX in UDv2.
+                for idx in range(len(upos_tags)):
+                    if lemmas[idx] == "be" and upos_tags[idx] == "VERB":
+                        upos_tags[idx] = "AUX"
                 dimsum_jsonl.append({
                     "tokens": tokens,
                     "upos_tags": upos_tags,
