@@ -8,6 +8,5 @@ for modelpath in models/streusle*; do
         --include-package streusle_tagger \
         --use-dataset-reader \
         --predictor streusle-tagger \
-        --cuda-device 0 \
         --batch-size 64
 done
