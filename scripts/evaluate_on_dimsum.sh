@@ -13,4 +13,8 @@ for modelpath in models/streusle*; do
         --predictor streusle-tagger \
         --cuda-device 0 \
         --batch-size 64
+
+    ./scripts/evaluate_dimsum_predictions.sh \
+        "models/${modelname}/${modelname}_dimsum16_test_predictions.jsonl" \
+        ./data/dimsum16/dimsum16.test
 done
