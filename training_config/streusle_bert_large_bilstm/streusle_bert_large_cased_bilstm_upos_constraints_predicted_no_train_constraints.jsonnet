@@ -9,9 +9,9 @@
         }
     }
   },
-  "train_data_path": "https://raw.githubusercontent.com/nert-nlp/streusle/master/train/streusle.ud_train.json",
-  "validation_data_path": "https://raw.githubusercontent.com/nert-nlp/streusle/master/dev/streusle.ud_dev.json",
-  "test_data_path": "https://raw.githubusercontent.com/nert-nlp/streusle/master/test/streusle.ud_test.json",
+  "train_data_path": "data/streusle/streusle.ud_train.json",
+  "validation_data_path": "data/streusle/streusle.ud_dev.json",
+  "test_data_path": "data/streusle/streusle.ud_test.json",
   "model": {
     "type": "streusle_tagger",
     "train_with_constraints": false,
