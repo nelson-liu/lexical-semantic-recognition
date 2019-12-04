@@ -2,7 +2,6 @@ from typing import Dict, List
 import json
 import logging
 
-import stanfordnlp
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.fields import Field, MetadataField, TextField, SequenceLabelField
@@ -10,6 +9,7 @@ from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
 from allennlp.data.tokenizers import Token
 from overrides import overrides
+import stanfordnlp
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
