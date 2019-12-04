@@ -2,9 +2,6 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import json
 import logging
 
-import torch
-from torch.nn.modules.linear import Linear
-
 from allennlp.common.checks import check_dimensions_match, ConfigurationError
 from allennlp.data import Vocabulary
 from allennlp.models.model import Model
@@ -14,9 +11,10 @@ from allennlp.nn import InitializerApplicator, RegularizerApplicator
 from allennlp.training.metrics import CategoricalAccuracy
 import allennlp.nn.util as util
 from overrides import overrides
+import torch
+from torch.nn.modules.linear import Linear
 
-
-from ..metrics.streuseval import Streuseval
+from streusle_tagger.metrics.streuseval import Streuseval
 
 ALL_UPOS = {'X', 'INTJ', 'VERB', 'ADV', 'CCONJ', 'PUNCT', 'ADP',
             'NOUN', 'SYM', 'ADJ', 'PROPN', 'DET', 'PART', 'PRON', 'SCONJ', 'NUM', 'AUX'}
