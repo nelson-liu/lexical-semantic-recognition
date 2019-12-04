@@ -26,7 +26,8 @@ class Streuseval(Metric):
         tempdir = tempfile.mkdtemp()
         gold_path = os.path.join(tempdir, "gold.json")
         predicted_path = os.path.join(tempdir, "predicted.autoid.json")
-        unpacked_predicted_path = os.path.join(tempdir, "unpacked_predicted.autoid.json")
+        # TODO(danielhers): Unused variable:
+        # unpacked_predicted_path = os.path.join(tempdir, "unpacked_predicted.autoid.json")
         with open(predicted_path, "w", encoding="utf-8") as predicted_file, \
                 open(gold_path, "w", encoding="utf-8") as gold_file:
             for tags, gold_tags, upos in zip(
@@ -38,11 +39,13 @@ class Streuseval(Metric):
                                                        tags,
                                                        gold_tags,
                                                        upos)
-        with open(predicted_path, encoding="utf-8") as predicted_file, \
-                open(unpacked_predicted_path, "w", encoding="utf-8") as unpacked_predicted_file:
+        with open(predicted_path, encoding="utf-8") as predicted_file:
+            # TODO(danielhers): Unused variable:
+            # \ open(unpacked_predicted_path, "w", encoding="utf-8") as unpacked_predicted_file:
             print_json(unpack_sents(predicted_file))
-        with open(unpacked_predicted_path, encoding="utf-8") as unpacked_predicted_file, \
-                open(gold_path, encoding="utf-8") as gold_file:
+        with open(gold_path, encoding="utf-8") as gold_file:
+            # TODO(danielhers): Unused variable:
+            # \ open(unpacked_predicted_path, encoding="utf-8") as unpacked_predicted_file:
             gold_sents = list(load_sents(gold_file, ss_mapper=ss_mapper))
             self._scores = eval_sys(predicted_file, gold_sents, ss_mapper)  # TODO accumulate
 
@@ -51,9 +54,13 @@ class Streuseval(Metric):
                    reset: bool = False) -> Dict[str, float]:
         return self._scores
 
+    @overrides
+    def reset(self):
+        self._scores = defaultdict(lambda: defaultdict(Counter))
 
-def ss_mapper(ss):
-    return coarsen_pss(ss, DEPTH) if ss.startswith('p.') else ss
+
+def ss_mapper(supersense):
+    return coarsen_pss(supersense, DEPTH) if supersense.startswith('p.') else supersense
 
 
 def write_conllulex_formatted_tags_to_file(prediction_file: TextIO,
