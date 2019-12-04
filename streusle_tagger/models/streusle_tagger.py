@@ -2,7 +2,6 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import json
 import logging
 
-import allennlp.nn.util as util
 import torch
 from torch.nn.modules.linear import Linear
 
@@ -13,9 +12,8 @@ from allennlp.modules import ConditionalRandomField, FeedForward
 from allennlp.modules import Seq2SeqEncoder, TimeDistributed, TextFieldEmbedder
 from allennlp.nn import InitializerApplicator, RegularizerApplicator
 from allennlp.training.metrics import CategoricalAccuracy
+import allennlp.nn.util as util
 from overrides import overrides
-from torch.nn.modules.linear import Linear
-from allennlp.nn.util import get_device_of, masked_log_softmax, get_lengths_from_binary_sequence_mask
 
 
 from ..metrics.streuseval import Streuseval
@@ -316,15 +314,15 @@ class StreusleTagger(Model):
         so we use an ugly nested list comprehension.
         """
         mask = output_dict.pop("mask")
-        lengths = get_lengths_from_binary_sequence_mask(mask)
+        lengths = util.get_lengths_from_binary_sequence_mask(mask)
         for key in "tags", "gold_tags":
             tags = output_dict.pop(key, None)
             if tags is not None:
                 tags = tags.cpu().detach().numpy()
                 output_dict[key] = [
-                    [self.vocab.get_token_from_index(tag, namespace=self.label_namespace)
-                     for tag in instance_tags[:length]]
-                    for instance_tags, length in zip(tags, lengths)]
+                        [self.vocab.get_token_from_index(tag, namespace=self.label_namespace)
+                         for tag in instance_tags[:length]]
+                        for instance_tags, length in zip(tags, lengths)]
 
         return output_dict
 
