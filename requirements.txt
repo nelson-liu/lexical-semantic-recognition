@@ -3,7 +3,8 @@ git+git://github.com/nert-nlp/streusle.git@7294c74edb8b7192bab5ffa48656e1ef63f2b
 stanfordnlp
 transformers==2.1.1
 conllu
-https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
+torch==1.1.0
+git+git://github.com/nelson-liu/stanfordnlp.git@3dad3397b076450ea929af6515d4acd140ee3a7c
 
 # Run tests
 pytest
