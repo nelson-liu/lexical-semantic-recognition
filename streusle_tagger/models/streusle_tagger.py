@@ -313,6 +313,9 @@ class StreusleTagger(Model):
         for key in "tags", "gold_tags":
             tags = output_dict.pop(key, None)
             if tags is not None:
+                # TODO (nfliu): figure out why this is sometimes a tensor and sometimes a list.
+                if torch.is_tensor(tags):
+                    tags = tags.cpu().detach().numpy()
                 output_dict[key] = [
                         [self.vocab.get_token_from_index(tag, namespace=self.label_namespace)
                          for tag in instance_tags[:length]]
