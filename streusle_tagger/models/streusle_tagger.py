@@ -14,7 +14,6 @@ from overrides import overrides
 import torch
 from torch.nn.modules.linear import Linear
 
-from streusle_tagger.metrics.streuseval import Streuseval
 
 ALL_UPOS = {'X', 'INTJ', 'VERB', 'ADV', 'CCONJ', 'PUNCT', 'ADP',
             'NOUN', 'SYM', 'ADJ', 'PROPN', 'DET', 'PART', 'PRON', 'SCONJ', 'NUM', 'AUX'}
@@ -177,7 +176,6 @@ class StreusleTagger(Model):
                 "accuracy": CategoricalAccuracy(),
                 "accuracy3": CategoricalAccuracy(top_k=3)
         }
-        self.streuseval_metric = Streuseval()
         if encoder is not None:
             check_dimensions_match(text_field_embedder.get_output_dim(), encoder.get_input_dim(),
                                    "text field embedding dim", "encoder input dim")
@@ -301,7 +299,6 @@ class StreusleTagger(Model):
 
             for metric in self.accuracy_metrics.values():
                 metric(class_probabilities, tags, mask.float())
-            self.streuseval_metric(class_probabilities, tags, mask.float())
         return output
 
     @overrides
@@ -316,7 +313,6 @@ class StreusleTagger(Model):
         for key in "tags", "gold_tags":
             tags = output_dict.pop(key, None)
             if tags is not None:
-                tags = tags.cpu().detach().numpy()
                 output_dict[key] = [
                         [self.vocab.get_token_from_index(tag, namespace=self.label_namespace)
                          for tag in instance_tags[:length]]
@@ -328,7 +324,6 @@ class StreusleTagger(Model):
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
         metrics_to_return = {metric_name: metric.get_metric(reset) for
                              metric_name, metric in self.accuracy_metrics.items()}
-        metrics_to_return.update(self.streuseval_metric.get_metric(reset))
         return metrics_to_return
 
     def get_upos_constraint_mask(self,
