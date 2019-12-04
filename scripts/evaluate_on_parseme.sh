@@ -14,7 +14,7 @@ for modelpath in models/streusle*; do
         --cuda-device 0 \
         --batch-size 64
 
-    ./scripts/evaluate_dimsum_predictions.sh \
+    ./scripts/evaluate_parseme_predictions.sh \
         "models/${modelname}/${modelname}_parseme_en_test_predictions.jsonl" \
         ./data/parseme_en/test.cupt
 done
