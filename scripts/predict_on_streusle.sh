@@ -14,4 +14,9 @@ for modelpath in models/streusle*; do
         --predictor streusle-tagger \
         --cuda-device 0 \
         --batch-size 64
+
+    ./scripts/streusle_eval/streuseval.sh \
+        data/streusle/streusle.ud_dev.conllulex \
+        "models/${modelname}/${modelname}_dev_predictions.jsonl"
+
 done

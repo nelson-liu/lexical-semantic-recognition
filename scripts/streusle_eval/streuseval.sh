@@ -6,7 +6,7 @@ shift
 grep -v '^#' $REF | cut -d"	" -f4 > ${REF%lex}.upos
 for PRED in "$@"; do
     PREFIX="${PRED%jsonl}".
-    python streusle_set_lextag.py "$REF" "$PRED" > "$PREFIX"json || exit 1
+    python scripts/streusle_eval/streusle_set_lextag.py "$REF" "$PRED" > "$PREFIX"json || exit 1
     python -m json2conllulex "$PREFIX"json > "$PREFIX"conllulex || exit 1
     python -m conllulex2UDlextag "$PREFIX"conllulex > "$PREFIX"UDlextag || exit 1
     python -m UDlextag2json --no-validate-pos --no-validate-type "$PREFIX"UDlextag > "$PREFIX"autoid.json || exit 1
