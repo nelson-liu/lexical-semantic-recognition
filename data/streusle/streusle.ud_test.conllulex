@@ -70,7 +70,7 @@
 4	is	be	AUX	VBZ	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	cop	5:cop	_	_	V	be	v.stative	_	_	_	_	O-V-v.stative
 5	incorrect	incorrect	ADJ	JJ	Degree=Pos	0	root	0:root	_	_	ADJ	incorrect	_	_	_	_	_	O-ADJ
 6	-	-	PUNCT	,	_	5	punct	5:punct	_	_	PUNCT	-	_	_	_	_	_	O-PUNCT
-7	our	we	PRON	PRP$	Number=Plur|Person=1|Poss=Yes|PronType=Prs	10	nmod:poss	10:nmod:poss	_	_	PRON.POSS	we	p.Possessor	p.Possessor	_	_	_	O-PRON.POSS-p.Possessor
+7	our	we	PRON	PRP$	Number=Plur|Person=1|Poss=Yes|PronType=Prs	10	nmod:poss	10:nmod:poss	_	_	PRON.POSS	we	p.Gestalt	p.Gestalt	_	_	_	O-PRON.POSS-p.Gestalt
 8	new	new	ADJ	JJ	Degree=Pos	10	amod	10:amod	_	_	ADJ	new	_	_	_	_	_	O-ADJ
 9	mobile	mobile	ADJ	JJ	Degree=Pos	10	amod	10:amod	_	2:1	N	mobile number	n.COMMUNICATION	_	_	_	_	B-N-n.COMMUNICATION
 10	number	number	NOUN	NN	Number=Sing	12	nsubj	12:nsubj|14:nsubj	_	2:2	_	_	_	_	_	_	_	I_
@@ -388,7 +388,7 @@
 9	or	or	CCONJ	CC	_	11	cc	11:cc	_	_	CCONJ	or	_	_	_	_	_	O-CCONJ
 10	even	even	ADV	RB	_	11	advmod	11:advmod	_	_	ADV	even	_	_	_	_	_	O-ADV
 11	anything	anything	PRON	NN	Number=Sing	8	conj	4:obl:to|8:conj:or	_	_	PRON	anything	_	_	_	_	_	O-PRON
-12	to	to	PART	TO	_	13	mark	13:mark	_	_	INF.P	to	p.Characteristic	p.Purpose	_	_	_	O-INF.P-p.Characteristic|p.Purpose
+12	to	to	PART	TO	_	13	mark	13:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
 13	eat	eat	VERB	VB	VerbForm=Inf	11	acl	11:acl:to	SpaceAfter=No	_	V	eat	v.consumption	_	_	_	_	O-V-v.consumption
 14	.	.	PUNCT	.	_	4	punct	4:punct	_	_	PUNCT	.	_	_	_	_	_	O-PUNCT
 
@@ -1965,7 +1965,7 @@
 12	are	be	AUX	VBP	Mood=Ind|Tense=Pres|VerbForm=Fin	13	cop	13:cop	_	_	V	be	v.stative	_	_	_	_	O-V-v.stative
 13	transparent	transparent	ADJ	JJ	Degree=Pos	7	conj	7:conj:and	_	_	ADJ	transparent	_	_	_	_	_	O-ADJ
 14	with	with	ADP	IN	_	16	case	16:case	_	_	P	with	p.Topic	p.Topic	_	_	_	O-P-p.Topic
-15	their	they	PRON	PRP$	Number=Plur|Person=3|Poss=Yes|PronType=Prs	16	nmod:poss	16:nmod:poss	_	_	PRON.POSS	they	p.Possessor	p.Possessor	_	_	_	O-PRON.POSS-p.Possessor
+15	their	they	PRON	PRP$	Number=Plur|Person=3|Poss=Yes|PronType=Prs	16	nmod:poss	16:nmod:poss	_	_	PRON.POSS	they	p.Gestalt	p.Gestalt	_	_	_	O-PRON.POSS-p.Gestalt
 16	fee	fee	NOUN	NN	Number=Sing	13	obl	13:obl:with	_	_	N	fee	n.POSSESSION	_	_	_	_	O-N-n.POSSESSION
 17	(	(	PUNCT	-LRB-	_	22	punct	22:punct	SpaceAfter=No	_	PUNCT	(	_	_	_	_	_	O-PUNCT
 18	ie	ie	X	FW	_	22	advmod	22:advmod	_	_	X	ie	_	_	_	_	_	O-X
@@ -2043,7 +2043,7 @@
 24	and	and	CCONJ	CC	_	25	cc	25:cc	_	_	CCONJ	and	_	_	_	_	_	O-CCONJ
 25	paid	pay	VERB	VBN	Tense=Past|VerbForm=Part	20	conj	19:advmod|20:conj:and	_	_	V	pay	v.possession	_	_	_	_	O-V-v.possession
 26	well	well	ADV	RB	Degree=Pos	25	advmod	25:advmod	_	_	ADV	well	_	_	_	_	_	O-ADV
-27	for	for	ADP	IN	_	29	case	29:case	_	_	P	for	p.Theme	p.Theme	_	_	_	O-P-p.Theme
+27	for	for	ADP	IN	_	29	case	29:case	_	_	P	for	p.Possession	p.Theme	_	_	_	O-P-p.Possession|p.Theme
 28	your	you	PRON	PRP$	Person=2|Poss=Yes|PronType=Prs	29	nmod:poss	29:nmod:poss	_	_	PRON.POSS	you	p.Possessor	p.Possessor	_	_	_	O-PRON.POSS-p.Possessor
 29	scrap	scrap	NOUN	NN	Number=Sing	25	obl	25:obl:for	_	_	N	scrap	n.ARTIFACT	_	_	_	_	O-N-n.ARTIFACT
 
@@ -2141,7 +2141,7 @@
 27	is	be	VERB	VBZ	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	6	parataxis	6:parataxis	_	_	V	be	v.stative	_	_	_	_	O-V-v.stative
 28	there	there	PRON	EX	_	27	expl	27:expl	_	_	PRON	there	_	_	_	_	_	O-PRON
 29	something	something	PRON	NN	Number=Sing	27	nsubj	27:nsubj	_	_	PRON	something	_	_	_	_	_	O-PRON
-30	behind	behind	ADP	IN	_	32	case	32:case	_	2:1	ADJ	behind the scene	_	_	_	_	_	B-ADJ
+30	behind	behind	ADP	IN	_	32	case	32:case	_	2:1	PP	behind the scene	p.Characteristic	p.Locus	_	_	_	B-PP-p.Characteristic|p.Locus
 31	the	the	DET	DT	Definite=Def|PronType=Art	32	det	32:det	_	2:2	_	_	_	_	_	_	_	I_
 32	scenes	scene	NOUN	NNS	Number=Plur	29	nmod	29:nmod:behind	_	2:3	_	_	_	_	_	_	_	I_
 33	at	at	ADP	IN	_	35	case	35:case	_	_	P	at	p.Locus	p.Locus	_	_	_	O-P-p.Locus
@@ -2479,7 +2479,7 @@
 # mwe = Decent place to stay , I would stay there again .
 1	Decent	decent	ADJ	JJ	Degree=Pos	2	amod	2:amod	_	_	ADJ	decent	_	_	_	_	_	O-ADJ
 2	place	place	NOUN	NN	Number=Sing	0	root	0:root	_	_	N	place	n.GROUP	_	_	_	_	O-N-n.GROUP
-3	to	to	PART	TO	_	4	mark	4:mark	_	_	INF.P	to	p.Characteristic	p.Purpose	_	_	_	O-INF.P-p.Characteristic|p.Purpose
+3	to	to	PART	TO	_	4	mark	4:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
 4	stay	stay	VERB	VB	VerbForm=Inf	2	acl	2:acl:to	SpaceAfter=No	_	V	stay	v.social	_	_	_	_	O-V-v.social
 5	,	,	PUNCT	,	_	2	punct	2:punct	_	_	PUNCT	,	_	_	_	_	_	O-PUNCT
 6	I	I	PRON	PRP	Case=Nom|Number=Sing|Person=1|PronType=Prs	8	nsubj	8:nsubj	_	_	PRON	I	_	_	_	_	_	O-PRON
@@ -2863,7 +2863,7 @@
 3	a	a	DET	DT	Definite=Ind|PronType=Art	5	det	5:det	_	_	DET	a	_	_	_	_	_	O-DET
 4	great	great	ADJ	JJ	Degree=Pos	5	amod	5:amod	_	_	ADJ	great	_	_	_	_	_	O-ADJ
 5	place	place	NOUN	NN	Number=Sing	0	root	0:root	_	_	N	place	n.GROUP	_	_	_	_	O-N-n.GROUP
-6	to	to	PART	TO	_	7	mark	7:mark	_	_	INF.P	to	p.Characteristic	p.Purpose	_	_	_	O-INF.P-p.Characteristic|p.Purpose
+6	to	to	PART	TO	_	7	mark	7:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
 7	get	get	VERB	VB	VerbForm=Inf	5	acl	5:acl:to	_	_	V	get	v.stative	_	_	_	_	O-V-v.stative
 8	a	a	DET	DT	Definite=Ind|PronType=Art	9	det	9:det	_	_	DET	a	_	_	_	_	_	O-DET
 9	permit	permit	NOUN	NN	Number=Sing	7	obj	7:obj	_	_	N	permit	n.ARTIFACT	_	_	_	_	O-N-n.ARTIFACT
@@ -3004,7 +3004,7 @@
 9	here	here	ADV	RB	PronType=Dem	8	advmod	8:advmod	_	_	ADV	here	_	_	_	_	_	O-ADV
 10	which	which	PRON	WDT	PronType=Rel	11	nsubj	7:ref	_	_	PRON	which	_	_	_	_	_	O-PRON
 11	made	make	VERB	VBD	Mood=Ind|Tense=Past|VerbForm=Fin	7	acl:relcl	7:acl:relcl	_	_	V	make	v.stative	_	_	_	_	O-V-v.stative
-12	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	13	nmod:poss	13:nmod:poss	_	_	PRON.POSS	my	p.Possessor	p.Possessor	_	_	_	O-PRON.POSS-p.Possessor
+12	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	13	nmod:poss	13:nmod:poss	_	_	PRON.POSS	my	p.Agent	p.Agent	_	_	_	O-PRON.POSS-p.Agent
 13	life	life	NOUN	NN	Number=Sing	11	obj	11:obj|14:nsubj:xsubj	_	_	N	life	n.PROCESS	_	_	_	_	O-N-n.PROCESS
 14	step	step	VERB	VB	VerbForm=Inf	11	xcomp	11:xcomp	_	_	V	step	v.stative	_	_	_	_	O-V-v.stative
 15	onto	onto	ADP	IN	_	18	case	18:case	_	_	P	onto	p.Goal	p.Goal	_	_	_	O-P-p.Goal
@@ -3763,7 +3763,7 @@
 11	helping	help	VERB	VBG	VerbForm=Ger	5	advcl	5:advcl:in	_	_	V	help	v.social	_	_	_	_	O-V-v.social
 12	me	I	PRON	PRP	Case=Acc|Number=Sing|Person=1|PronType=Prs	11	obj	11:obj	_	_	PRON	I	_	_	_	_	_	O-PRON
 13	with	with	ADP	IN	_	17	case	17:case	_	_	P	with	p.Theme	p.Theme	_	_	_	O-P-p.Theme
-14	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	17	nmod:poss	17:nmod:poss	_	_	PRON.POSS	my	p.Possessor	p.Possessor	_	_	_	O-PRON.POSS-p.Possessor
+14	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	17	nmod:poss	17:nmod:poss	_	_	PRON.POSS	my	p.Agent	p.Gestalt	_	_	_	O-PRON.POSS-p.Agent|p.Gestalt
 15	account	account	NOUN	NN	Number=Sing	17	compound	17:compound	_	_	N	account	n.POSSESSION	_	_	_	_	O-N-n.POSSESSION
 16	set	set	NOUN	NN	Number=Sing	17	compound	17:compound	_	2:1	N	set up	n.ACT	_	_	_	_	B-N-n.ACT
 17	up	up	NOUN	NN	Number=Sing	11	obl	11:obl:with	SpaceAfter=No	2:2	_	_	_	_	_	_	_	I_
@@ -3785,7 +3785,7 @@
 10	up	up	ADP	RP	_	9	compound:prt	9:compound:prt	_	2:2	_	_	_	_	_	_	_	I_
 11	had	have	VERB	VBD	Mood=Ind|Tense=Past|VerbForm=Fin	2	ccomp	2:ccomp	_	_	V	have	v.stative	_	_	_	_	O-V-v.stative
 12	people	people	NOUN	NNS	Number=Plur	11	obj	11:obj	_	_	N	people	n.PERSON	_	_	_	_	O-N-n.PERSON
-13	to	to	PART	TO	_	14	mark	14:mark	_	_	INF.P	to	p.Characteristic	p.Purpose	_	_	_	O-INF.P-p.Characteristic|p.Purpose
+13	to	to	PART	TO	_	14	mark	14:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
 14	work	work	VERB	VB	VerbForm=Inf	12	acl	12:acl:to	_	_	V	work	v.social	_	3:1	_	work with	B-V-v.social
 15	with	with	ADP	IN	_	14	obl	14:obl	_	_	P	with	p.SocialRel	p.Co-Agent	3:2	_	_	I~-P-p.SocialRel|p.Co-Agent
 16	like	like	ADP	IN	_	17	case	17:case	_	_	P	like	p.ComparisonRef	p.ComparisonRef	_	_	_	O-P-p.ComparisonRef
@@ -3834,7 +3834,7 @@
 3	a	a	DET	DT	Definite=Ind|PronType=Art	5	det	5:det	_	_	DET	a	_	_	_	_	_	O-DET
 4	great	great	ADJ	JJ	Degree=Pos	5	amod	5:amod	_	_	ADJ	great	_	_	_	_	_	O-ADJ
 5	place	place	NOUN	NN	Number=Sing	0	root	0:root	_	_	N	place	n.GROUP	_	_	_	_	O-N-n.GROUP
-6	to	to	PART	TO	_	7	mark	7:mark	_	_	INF.P	to	p.Characteristic	p.Purpose	_	_	_	O-INF.P-p.Characteristic|p.Purpose
+6	to	to	PART	TO	_	7	mark	7:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
 7	shop	shop	VERB	VB	VerbForm=Inf	5	acl	5:acl:to	SpaceAfter=No	_	V	shop	v.social	_	_	_	_	O-V-v.social
 8	.	.	PUNCT	.	_	5	punct	5:punct	_	_	PUNCT	.	_	_	_	_	_	O-PUNCT
 
@@ -3952,7 +3952,7 @@
 9	twice	twice	ADV	RB	NumType=Mult	3	advmod	3:advmod	_	_	ADV	twice	_	_	_	_	_	O-ADV
 10	now	now	ADV	RB	_	3	advmod	3:advmod	_	_	ADV	now	_	_	_	_	_	O-ADV
 11	in	in	ADP	IN	_	13	case	13:case	_	_	P	in	p.OrgRole	p.Locus	_	_	_	O-P-p.OrgRole|p.Locus
-12	our	we	PRON	PRP$	Number=Plur|Person=1|Poss=Yes|PronType=Prs	13	nmod:poss	13:nmod:poss	_	_	PRON.POSS	we	p.SocialRel	p.Gestalt	_	_	_	O-PRON.POSS-p.SocialRel|p.Gestalt
+12	our	we	PRON	PRP$	Number=Plur|Person=1|Poss=Yes|PronType=Prs	13	nmod:poss	13:nmod:poss	_	_	PRON.POSS	we	p.OrgRole	p.Gestalt	_	_	_	O-PRON.POSS-p.OrgRole|p.Gestalt
 13	family	family	NOUN	NN	Number=Sing	3	obl	3:obl:in	_	_	N	family	n.GROUP	_	_	_	_	O-N-n.GROUP
 14	and	and	CCONJ	CC	_	20	cc	20:cc	_	_	CCONJ	and	_	_	_	_	_	O-CCONJ
 15	both	both	DET	DT	_	16	det	16:det	_	_	DET	both	_	_	_	_	_	O-DET
@@ -3979,7 +3979,7 @@
 10	refer	refer	VERB	VB	VerbForm=Inf	6	conj	4:xcomp|6:conj:or	_	_	V	refer	v.communication	_	_	_	_	O-V-v.communication
 11	him	he	PRON	PRP	Case=Acc|Gender=Masc|Number=Sing|Person=3|PronType=Prs	10	obj	10:obj	_	_	PRON	he	_	_	_	_	_	O-PRON
 12	to	to	ADP	IN	_	14	case	14:case	_	_	P	to	??	_	_	_	_	O-P-??
-13	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	14	nmod:poss	14:nmod:poss	_	_	PRON.POSS	my	p.SocialRel	p.Gestalt	_	_	_	O-PRON.POSS-p.SocialRel|p.Gestalt
+13	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	14	nmod:poss	14:nmod:poss	_	_	PRON.POSS	my	p.OrgRole	p.Gestalt	_	_	_	O-PRON.POSS-p.OrgRole|p.Gestalt
 14	family	family	NOUN	NN	Number=Sing	10	obl	10:obl:to	_	_	N	family	n.GROUP	_	_	_	_	O-N-n.GROUP
 15	or	or	CCONJ	CC	_	16	cc	16:cc	_	_	CCONJ	or	_	_	_	_	_	O-CCONJ
 16	friends	friend	NOUN	NNS	Number=Plur	14	conj	10:obl:to|14:conj:or	SpaceAfter=No	_	N	friend	n.PERSON	_	_	_	_	O-N-n.PERSON
@@ -4384,7 +4384,7 @@
 15	and	and	CCONJ	CC	_	16	cc	16:cc	_	_	CCONJ	and	_	_	_	_	_	O-CCONJ
 16	suggesting	suggest	VERB	VBG	VerbForm=Ger	7	conj	5:advcl:in|7:conj:and	_	_	V	suggest	v.communication	_	_	_	_	O-V-v.communication
 17	exercises	exercise	NOUN	NNS	Number=Plur	16	obj	16:obj	_	_	N	exercise	n.ACT	_	_	_	_	O-N-n.ACT
-18	to	to	PART	TO	_	19	mark	19:mark	_	_	INF.P	to	p.Characteristic	p.Purpose	_	_	_	O-INF.P-p.Characteristic|p.Purpose
+18	to	to	PART	TO	_	19	mark	19:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
 19	use	use	VERB	VB	VerbForm=Inf	17	acl	17:acl:to	SpaceAfter=No	_	V	use	v.stative	_	_	_	_	O-V-v.stative
 20	.	.	PUNCT	.	_	2	punct	2:punct	_	_	PUNCT	.	_	_	_	_	_	O-PUNCT
 
@@ -4487,7 +4487,7 @@
 # text = On time, Clean and very nice
 # streusle_sent_id = ewtb.r.216281.1
 # mwe = On_time , Clean and very nice
-1	On	on	ADP	IN	_	2	case	2:case	_	1:1	ADJ	on time	_	_	_	_	_	B-ADJ
+1	On	on	ADP	IN	_	2	case	2:case	_	1:1	PP	on time	p.Characteristic	p.Locus	_	_	_	B-PP-p.Characteristic|p.Locus
 2	time	time	NOUN	NN	Number=Sing	0	root	0:root	SpaceAfter=No	1:2	_	_	_	_	_	_	_	I_
 3	,	,	PUNCT	,	_	4	punct	4:punct	_	_	PUNCT	,	_	_	_	_	_	O-PUNCT
 4	Clean	clean	ADJ	JJ	Degree=Pos	2	conj	2:conj:and	_	_	ADJ	clean	_	_	_	_	_	O-ADJ
@@ -4659,7 +4659,7 @@
 5	lots	lot	NOUN	NNS	Number=Plur	2	parataxis	2:parataxis	_	_	N	lot	n.QUANTITY	_	_	_	_	O-N-n.QUANTITY
 6	of	of	ADP	IN	_	7	case	7:case	_	_	P	of	p.Quantity	p.Quantity	_	_	_	O-P-p.Quantity
 7	people	people	NOUN	NNS	Number=Plur	5	nmod	5:nmod:of	_	_	N	people	n.PERSON	_	_	_	_	O-N-n.PERSON
-8	to	to	PART	TO	_	9	mark	9:mark	_	_	INF.P	to	p.Characteristic	p.Purpose	_	_	_	O-INF.P-p.Characteristic|p.Purpose
+8	to	to	PART	TO	_	9	mark	9:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
 9	talk	talk	VERB	VB	VerbForm=Inf	7	acl	7:acl:to	_	_	V	talk	v.communication	_	_	_	_	O-V-v.communication
 10	to	to	ADP	IN	_	9	obl	9:obl	_	_	P	to	p.Recipient	p.Goal	_	_	_	O-P-p.Recipient|p.Goal
 11	and	and	CCONJ	CC	_	16	cc	16:cc	_	_	CCONJ	and	_	_	_	_	_	O-CCONJ
@@ -4841,7 +4841,7 @@
 4	several	several	ADJ	JJ	Degree=Pos	5	amod	5:amod	_	_	ADJ	several	_	_	_	_	_	O-ADJ
 5	dentists	dentist	NOUN	NNS	Number=Plur	3	obj	3:obj	_	_	N	dentist	n.PERSON	_	_	_	_	O-N-n.PERSON
 6	in	in	ADP	IN	_	8	case	8:case	_	_	P	in	p.Time	p.Time	_	_	_	O-P-p.Time
-7	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	8	nmod:poss	8:nmod:poss	_	_	PRON.POSS	my	p.Possessor	p.Possessor	_	_	_	O-PRON.POSS-p.Possessor
+7	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	8	nmod:poss	8:nmod:poss	_	_	PRON.POSS	my	p.Theme	p.Gestalt	_	_	_	O-PRON.POSS-p.Theme|p.Gestalt
 8	life	life	NOUN	NN	Number=Sing	3	obl	3:obl:in	SpaceAfter=No	_	N	life	n.TIME	_	_	_	_	O-N-n.TIME
 9	,	,	PUNCT	,	_	17	punct	17:punct	_	_	PUNCT	,	_	_	_	_	_	O-PUNCT
 10	but	but	CCONJ	CC	_	17	cc	17:cc	_	_	CCONJ	but	_	_	_	_	_	O-CCONJ
@@ -5289,7 +5289,7 @@
 12	come	come	VERB	VBN	Tense=Past|VerbForm=Part	8	acl:relcl	8:acl:relcl	_	2:1	V.IAV	come across	v.stative	_	_	_	_	B-V.IAV-v.stative
 13	across	across	ADP	IN	_	12	obl	12:obl	_	2:2	_	_	_	_	_	_	_	I_
 14	in	in	ADP	IN	_	17	case	17:case	_	_	P	in	p.Time	p.Time	3:1	_	in life	B-P-p.Time
-15	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	17	nmod:poss	17:nmod:poss	_	_	PRON.POSS	my	p.Possessor	p.Possessor	_	_	_	o-PRON.POSS-p.Possessor
+15	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	17	nmod:poss	17:nmod:poss	_	_	PRON.POSS	my	p.Theme	p.Gestalt	_	_	_	o-PRON.POSS-p.Theme|p.Gestalt
 16	whole	whole	ADJ	JJ	Degree=Pos	17	amod	17:amod	_	_	ADJ	whole	_	_	_	_	_	o-ADJ
 17	life	life	NOUN	NN	Number=Sing	12	obl	12:obl:in	SpaceAfter=No	_	N	life	n.COGNITION	_	3:2	_	_	I~-N-n.COGNITION
 18	!	!	PUNCT	.	_	8	punct	8:punct	_	_	PUNCT	!	_	_	_	_	_	O-PUNCT
@@ -5346,7 +5346,7 @@
 # mwe = no feathers in_stock !!!!
 1	no	no	DET	DT	_	2	det	2:det	_	_	DET	no	_	_	_	_	_	O-DET
 2	feathers	feather	NOUN	NNS	Number=Plur	0	root	0:root	_	_	N	feather	n.NATURALOBJECT	_	_	_	_	O-N-n.NATURALOBJECT
-3	in	in	ADP	IN	_	4	case	4:case	_	1:1	PP	in stock	p.Manner	p.Locus	_	_	_	B-PP-p.Manner|p.Locus
+3	in	in	ADP	IN	_	4	case	4:case	_	1:1	PP	in stock	p.Characteristic	p.Locus	_	_	_	B-PP-p.Characteristic|p.Locus
 4	stock	stock	NOUN	NN	Number=Sing	2	nmod	2:nmod:in	SpaceAfter=No	1:2	_	_	_	_	_	_	_	I_
 5	!!!!	!!!!	PUNCT	.	_	2	punct	2:punct	_	_	PUNCT	!!!!	_	_	_	_	_	O-PUNCT
 
@@ -5407,7 +5407,7 @@
 2	hired	hire	VERB	VBD	Mood=Ind|Tense=Past|VerbForm=Fin	0	root	0:root	_	_	V	hire	v.social	_	_	_	_	O-V-v.social
 3	this	this	DET	DT	Number=Sing|PronType=Dem	4	det	4:det	_	_	DET	this	_	_	_	_	_	O-DET
 4	company	company	NOUN	NN	Number=Sing	2	obj	2:obj	_	_	N	company	n.GROUP	_	_	_	_	O-N-n.GROUP
-5	to	to	PART	TO	_	6	mark	6:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
+5	to	to	PART	TO	_	6	mark	6:mark	_	_	INF.P	to	p.Theme	p.Purpose	_	_	_	O-INF.P-p.Theme|p.Purpose
 6	unlock	unlock	VERB	VB	VerbForm=Inf	2	advcl	2:advcl:to	_	_	V	unlock	v.change	_	_	_	_	O-V-v.change
 7	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	8	nmod:poss	8:nmod:poss	_	_	PRON.POSS	my	p.Possessor	p.Possessor	_	_	_	O-PRON.POSS-p.Possessor
 8	car	car	NOUN	NN	Number=Sing	6	obj	6:obj	SpaceAfter=No	_	N	car	n.ARTIFACT	_	_	_	_	O-N-n.ARTIFACT
@@ -5558,7 +5558,7 @@
 3	waste	waste	VERB	VB	Mood=Imp|VerbForm=Fin	0	root	0:root	_	_	V	waste	v.consumption	_	_	_	_	O-V-v.consumption
 4	your	you	PRON	PRP$	Person=2|Poss=Yes|PronType=Prs	5	nmod:poss	5:nmod:poss	_	_	PRON.POSS	you	p.Possessor	p.Possessor	_	_	_	O-PRON.POSS-p.Possessor
 5	money	money	NOUN	NN	Number=Sing	3	obj	3:obj	_	_	N	money	n.POSSESSION	_	_	_	_	O-N-n.POSSESSION
-6	on	on	ADP	IN	_	8	case	8:case	_	_	P	on	p.Theme	p.Theme	_	_	_	O-P-p.Theme
+6	on	on	ADP	IN	_	8	case	8:case	_	_	P	on	p.Possession	p.Theme	_	_	_	O-P-p.Possession|p.Theme
 7	the	the	DET	DT	Definite=Def|PronType=Art	8	det	8:det	_	_	DET	the	_	_	_	_	_	O-DET
 8	jukebox	jukebox	NOUN	NN	Number=Sing	3	obl	3:obl:on	_	_	N	jukebox	n.ARTIFACT	_	_	_	_	O-N-n.ARTIFACT
 
@@ -5595,7 +5595,7 @@
 27	end	end	VERB	VBP	Mood=Ind|Tense=Pres|VerbForm=Fin	5	conj	5:conj:and	_	1:1	V.VPC.full	end up	v.stative	_	_	_	_	B-V.VPC.full-v.stative
 28	up	up	ADP	RP	_	27	compound:prt	27:compound:prt	_	1:2	_	_	_	_	_	_	_	I_
 29	paying	pay	VERB	VBG	VerbForm=Ger	27	xcomp	27:xcomp	_	_	V	pay	v.possession	_	_	_	_	O-V-v.possession
-30	for	for	ADP	IN	_	31	case	31:case	_	_	P	for	p.Theme	p.Theme	_	_	_	O-P-p.Theme
+30	for	for	ADP	IN	_	31	case	31:case	_	_	P	for	p.Possession	p.Theme	_	_	_	O-P-p.Possession|p.Theme
 31	it	it	PRON	PRP	Case=Acc|Gender=Neut|Number=Sing|Person=3|PronType=Prs	29	obl	29:obl:for	SpaceAfter=No	_	PRON	it	_	_	_	_	_	O-PRON
 32	.	.	PUNCT	.	_	5	punct	5:punct	_	_	PUNCT	.	_	_	_	_	_	O-PUNCT
 
@@ -5700,7 +5700,7 @@
 12	to	to	PART	TO	_	13	mark	13:mark	_	_	INF	to	_	_	_	_	_	O-INF
 13	lie	lie	VERB	VB	VerbForm=Inf	11	acl	11:acl:to	_	_	V	lie	v.body	_	_	_	_	O-V-v.body
 14	comfortably	comfortably	ADV	RB	_	13	advmod	13:advmod	_	_	ADV	comfortably	_	_	_	_	_	O-ADV
-15	on	on	ADP	IN	_	17	case	17:case	_	_	P	on	p.Manner	p.Locus	_	_	_	O-P-p.Manner|p.Locus
+15	on	on	ADP	IN	_	17	case	17:case	_	_	P	on	p.Locus	p.Locus	_	_	_	O-P-p.Locus
 16	my	my	PRON	PRP$	Number=Sing|Person=1|Poss=Yes|PronType=Prs	17	nmod:poss	17:nmod:poss	_	_	PRON.POSS	my	p.Whole	p.Gestalt	_	_	_	O-PRON.POSS-p.Whole|p.Gestalt
 17	tummy	tummy	NOUN	NN	Number=Sing	13	obl	13:obl:on	SpaceAfter=No	_	N	tummy	n.BODY	_	_	_	_	O-N-n.BODY
 18	.	.	PUNCT	.	_	2	punct	2:punct	_	_	PUNCT	.	_	_	_	_	_	O-PUNCT
@@ -5811,7 +5811,7 @@
 7	anyone	anyone	PRON	NN	Number=Sing	3	obl	3:obl:to|11:nsubj|18:nsubj	_	_	PRON	anyone	_	_	_	_	_	O-PRON
 8	who	who	PRON	WP	PronType=Rel	11	nsubj	7:ref	_	_	PRON	who	_	_	_	_	_	O-PRON
 9	is	be	AUX	VBZ	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	11	cop	11:cop	_	_	V	be	v.stative	_	_	_	_	O-V-v.stative
-10	in	in	ADP	IN	_	11	case	11:case	_	2:1	P	in need of	p.Manner	p.Locus	_	_	_	B-P-p.Manner|p.Locus
+10	in	in	ADP	IN	_	11	case	11:case	_	2:1	P	in need of	p.Characteristic	p.Locus	_	_	_	B-P-p.Characteristic|p.Locus
 11	need	need	NOUN	NN	Number=Sing	7	acl:relcl	7:acl:relcl	_	2:2	_	_	_	_	_	_	_	I_
 12	of	of	ADP	IN	_	15	case	15:case	_	2:3	_	_	_	_	_	_	_	I_
 13	a	a	DET	DT	Definite=Ind|PronType=Art	15	det	15:det	_	_	DET	a	_	_	_	_	_	O-DET
@@ -6112,7 +6112,7 @@
 # text = Out of business?
 # streusle_sent_id = ewtb.r.290238.1
 # mwe = Out_of_business ?
-1	Out	out	ADP	IN	_	3	case	3:case	_	1:1	PP	out of business	p.Manner	p.Locus	_	_	_	B-PP-p.Manner|p.Locus
+1	Out	out	ADP	IN	_	3	case	3:case	_	1:1	PP	out of business	p.Characteristic	p.Locus	_	_	_	B-PP-p.Characteristic|p.Locus
 2	of	of	ADP	IN	_	3	case	3:case	_	1:2	_	_	_	_	_	_	_	I_
 3	business	business	NOUN	NN	Number=Sing	0	root	0:root	SpaceAfter=No	1:3	_	_	_	_	_	_	_	I_
 4	?	?	PUNCT	.	_	3	punct	3:punct	_	_	PUNCT	?	_	_	_	_	_	O-PUNCT
@@ -6128,7 +6128,7 @@
 5	is	be	AUX	VBZ	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	9	cop	9:cop	_	_	V	be	v.stative	_	_	_	_	O-V-v.stative
 6	no	no	ADV	RB	_	7	advmod	7:advmod	_	_	ADV	no	_	_	_	_	_	O-ADV
 7	longer	longer	ADV	RBR	Degree=Cmp	9	advmod	9:advmod	_	_	ADV	longer	_	_	_	_	_	O-ADV
-8	in	in	ADP	IN	_	9	case	9:case	_	1:1	PP	in business	p.Manner	p.Locus	_	_	_	B-PP-p.Manner|p.Locus
+8	in	in	ADP	IN	_	9	case	9:case	_	1:1	PP	in business	p.Characteristic	p.Locus	_	_	_	B-PP-p.Characteristic|p.Locus
 9	business	business	NOUN	NN	Number=Sing	2	ccomp	2:ccomp	SpaceAfter=No	1:2	_	_	_	_	_	_	_	I_
 10	.	.	PUNCT	.	_	2	punct	2:punct	_	_	PUNCT	.	_	_	_	_	_	O-PUNCT
 
@@ -6388,7 +6388,7 @@
 5	,	,	PUNCT	,	_	7	punct	7:punct	_	_	PUNCT	,	_	_	_	_	_	O-PUNCT
 6	relaxed	relaxed	ADJ	JJ	Degree=Pos	7	amod	7:amod	_	_	ADJ	relaxed	_	_	_	_	_	O-ADJ
 7	place	place	NOUN	NN	Number=Sing	0	root	0:root	_	_	N	place	n.GROUP	_	_	_	_	O-N-n.GROUP
-8	to	to	PART	TO	_	9	mark	9:mark	_	_	INF.P	to	p.Characteristic	p.Purpose	_	_	_	O-INF.P-p.Characteristic|p.Purpose
+8	to	to	PART	TO	_	9	mark	9:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
 9	get	get	VERB	VB	VerbForm=Inf	7	acl	7:acl:to	_	1:1	V.VID	get do	v.social	_	_	_	_	B-V.VID-v.social
 10	stuff	stuff	NOUN	NN	Number=Sing	9	obj	9:obj|11:nsubj:xsubj	_	_	N	stuff	n.OTHER	_	_	_	_	o-N-n.OTHER
 11	done	do	VERB	VBN	Tense=Past|VerbForm=Part	9	xcomp	9:xcomp	_	1:2	_	_	_	_	_	_	_	I_
@@ -6652,7 +6652,7 @@
 # mwe = I am in_love~with the giant plate of nachos !
 1	I	I	PRON	PRP	Case=Nom|Number=Sing|Person=1|PronType=Prs	4	nsubj	4:nsubj	_	_	PRON	I	_	_	_	_	_	O-PRON
 2	am	be	AUX	VBP	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin	4	cop	4:cop	_	_	V	be	v.stative	_	_	_	_	O-V-v.stative
-3	in	in	ADP	IN	_	4	case	4:case	_	1:1	PP	in love	p.Manner	p.Locus	2:1	_	in love with	B-PP-p.Manner|p.Locus
+3	in	in	ADP	IN	_	4	case	4:case	_	1:1	PP	in love	p.Characteristic	p.Locus	2:1	_	in love with	B-PP-p.Characteristic|p.Locus
 4	love	love	NOUN	NN	Number=Sing	0	root	0:root	_	1:2	_	_	_	_	2:2	_	_	I_
 5	with	with	ADP	IN	_	8	case	8:case	_	_	P	with	p.Stimulus	p.Topic	2:3	_	_	I~-P-p.Stimulus|p.Topic
 6	the	the	DET	DT	Definite=Def|PronType=Art	8	det	8:det	_	_	DET	the	_	_	_	_	_	O-DET
@@ -6710,7 +6710,7 @@
 19	more	more	ADV	RBR	_	20	advmod	20:advmod	_	_	ADV	more	_	_	_	_	_	O-ADV
 20	serious	serious	ADJ	JJ	Degree=Pos	21	amod	21:amod	_	_	ADJ	serious	_	_	_	_	_	O-ADJ
 21	adults	adult	NOUN	NNS	Number=Plur	18	obj	18:obj	_	_	N	adult	n.PERSON	_	_	_	_	O-N-n.PERSON
-22	to	to	PART	TO	_	23	mark	23:mark	_	_	INF.P	to	p.Characteristic	p.Purpose	_	_	_	O-INF.P-p.Characteristic|p.Purpose
+22	to	to	PART	TO	_	23	mark	23:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
 23	help	help	VERB	VB	VerbForm=Inf	21	acl	21:acl:to	_	_	V	help	v.social	_	_	_	_	O-V-v.social
 24	serve	serve	VERB	VB	VerbForm=Inf	23	ccomp	23:ccomp	SpaceAfter=No	_	V	serve	v.social	_	_	_	_	O-V-v.social
 25	/	/	PUNCT	,	_	26	cc	26:cc	SpaceAfter=No	_	PUNCT	/	_	_	_	_	_	O-PUNCT
@@ -7076,7 +7076,7 @@
 1	Good	good	ADJ	JJ	Degree=Pos	2	amod	2:amod	_	_	ADJ	good	_	_	_	_	_	O-ADJ
 2	location	location	NOUN	NN	Number=Sing	7	nsubj	7:nsubj	_	_	N	location	n.LOCATION	_	_	_	_	O-N-n.LOCATION
 3	and	and	CCONJ	CC	_	6	cc	6:cc	_	_	CCONJ	and	_	_	_	_	_	O-CCONJ
-4	off	off	ADP	IN	_	5	case	5:case	_	1:1	ADJ	off road	_	_	2:1	_	off road parking	B-ADJ
+4	off	off	ADP	IN	_	5	case	5:case	_	1:1	PP	off road	p.Locus	p.Locus	2:1	_	off road parking	B-PP-p.Locus
 5	road	road	NOUN	NN	Number=Sing	6	compound	6:compound	_	1:2	_	_	_	_	2:2	_	_	I_
 6	parking	parking	NOUN	NN	Number=Sing	2	conj	2:conj:and|7:nsubj	_	_	N	parking	n.COGNITION	_	2:3	_	_	I~-N-n.COGNITION
 7	made	make	VERB	VBD	Mood=Ind|Tense=Past|VerbForm=Fin	0	root	0:root	_	_	V	make	v.social	_	_	_	_	O-V-v.social
@@ -7215,7 +7215,7 @@
 7	a	a	DET	DT	Definite=Ind|PronType=Art	9	det	9:det	_	_	DET	a	_	_	_	_	_	O-DET
 8	regular	regular	ADJ	JJ	Degree=Pos	9	amod	9:amod	_	_	ADJ	regular	_	_	_	_	_	O-ADJ
 9	place	place	NOUN	NN	Number=Sing	6	obj	6:obj	_	_	N	place	n.GROUP	_	_	_	_	O-N-n.GROUP
-10	to	to	PART	TO	_	11	mark	11:mark	_	_	INF.P	to	p.Characteristic	p.Purpose	_	_	_	O-INF.P-p.Characteristic|p.Purpose
+10	to	to	PART	TO	_	11	mark	11:mark	_	_	INF.P	to	p.Purpose	p.Purpose	_	_	_	O-INF.P-p.Purpose
 11	eat	eat	VERB	VB	VerbForm=Inf	9	acl	9:acl:to	SpaceAfter=No	_	V	eat	v.consumption	_	_	_	_	O-V-v.consumption
 12	.	.	PUNCT	.	_	3	punct	3:punct	_	_	PUNCT	.	_	_	_	_	_	O-PUNCT
 
@@ -7286,7 +7286,7 @@
 9	a	a	DET	DT	Definite=Ind|PronType=Art	10	det	10:det	_	_	DET	a	_	_	_	_	_	O-DET
 10	product	product	NOUN	NN	Number=Sing	13	nsubj	13:nsubj	_	_	N	product	n.ARTIFACT	_	_	_	_	O-N-n.ARTIFACT
 11	was	be	AUX	VBD	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	13	cop	13:cop	_	_	AUX	be	_	_	_	_	_	O-AUX
-12	in	in	ADP	IN	_	13	case	13:case	_	1:1	PP	in stock	p.Manner	p.Locus	_	_	_	B-PP-p.Manner|p.Locus
+12	in	in	ADP	IN	_	13	case	13:case	_	1:1	PP	in stock	p.Characteristic	p.Locus	_	_	_	B-PP-p.Characteristic|p.Locus
 13	stock	stock	NOUN	NN	Number=Sing	7	advcl	7:advcl:in	SpaceAfter=No	1:2	_	_	_	_	_	_	_	I_
 14	.	.	PUNCT	.	_	1	punct	1:punct	_	_	PUNCT	.	_	_	_	_	_	O-PUNCT
 
@@ -7507,7 +7507,7 @@
 6	stylists	stylist	NOUN	NNS	Number=Plur	18	nsubj	18:nsubj	_	_	N	stylist	n.PERSON	_	_	_	_	O-N-n.PERSON
 7	are	be	AUX	VBP	Mood=Ind|Tense=Pres|VerbForm=Fin	18	cop	18:cop	_	_	V	be	v.stative	_	_	_	_	O-V-v.stative
 8	not	not	PART	RB	_	18	advmod	18:advmod	_	_	ADV	not	_	_	_	_	_	O-ADV
-9	in	in	ADP	IN	_	18	case	18:case	_	_	P	in	p.Manner	p.Locus	_	_	_	O-P-p.Manner|p.Locus
+9	in	in	ADP	IN	_	18	case	18:case	_	_	P	in	p.Characteristic	p.Locus	_	_	_	O-P-p.Characteristic|p.Locus
 10	the	the	DET	DT	Definite=Def|PronType=Art	18	det	18:det	_	_	DET	the	_	_	_	_	_	O-DET
 11	"	"	PUNCT	``	_	13	punct	13:punct	SpaceAfter=No	_	PUNCT	"	_	_	_	_	_	O-PUNCT
 12	been	be	AUX	VBN	Tense=Past|VerbForm=Part	13	cop	13:cop	_	1:1	ADJ	be there / do that	_	_	_	_	_	B-ADJ
