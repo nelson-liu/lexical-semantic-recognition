@@ -1,0 +1,37 @@
+1	Highly		RB	O	0			ewtb.r.001325.1
+2	recommended		VBN	O-communication	0		communication	ewtb.r.001325.1
+
+1	My		PRP$	O	0			ewtb.r.001325.2
+2	8		CD	O	0			ewtb.r.001325.2
+3	year		NN	B-PERSON	0		PERSON	ewtb.r.001325.2
+4	old		JJ	Ī	3	_		ewtb.r.001325.2
+5	daughter		NN	O-PERSON	0		PERSON	ewtb.r.001325.2
+6	loves		VBZ	O-emotion	0		emotion	ewtb.r.001325.2
+7	this		DT	O	0			ewtb.r.001325.2
+8	place		NN	O-LOCATION	0		LOCATION	ewtb.r.001325.2
+9	.		.	O	0			ewtb.r.001325.2
+
+1	The		DT	O	0			ewtb.r.001325.3
+2	best		JJS	O	0			ewtb.r.001325.3
+3	climbing		NN	O-ACT	0		ACT	ewtb.r.001325.3
+4	club		NN	O-GROUP	0		GROUP	ewtb.r.001325.3
+5	around		RB	O	0			ewtb.r.001325.3
+6	.		.	O	0			ewtb.r.001325.3
+
+1	Hooray		UH	O	0			ewtb.r.001325.4
+2	for		IN	O	0			ewtb.r.001325.4
+3	Craggy		NNP	O-PERSON	0		PERSON	ewtb.r.001325.4
+4	.		.	O	0			ewtb.r.001325.4
+
+1	Buyer		NN	B-PERSON	0		PERSON	ewtb.r.001961.1
+2	Beware		VB	Ĩ-cognition	1	~	cognition	ewtb.r.001961.1
+3	!!		.	O	0			ewtb.r.001961.1
+
+1	Rusted		VBN	B-stative	0		stative	ewtb.r.001961.2
+2	out		RP	Ī	1	_		ewtb.r.001961.2
+3	and		CC	O	0			ewtb.r.001961.2
+4	unsafe		JJ	O	0			ewtb.r.001961.2
+5	cars		NNS	O-ARTIFACT	0		ARTIFACT	ewtb.r.001961.2
+6	sold		VBN	O-possession	0		possession	ewtb.r.001961.2
+7	here		RB	O	0			ewtb.r.001961.2
+8	!		.	O	0			ewtb.r.001961.2
