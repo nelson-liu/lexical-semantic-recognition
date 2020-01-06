@@ -7,5 +7,6 @@ else
 fi
 
 scripts/streusle2.0_scripts/sst2tags.py ./data/streusle2.0/streusle.sst.train | ${SEDCOMMAND} -r $'s/-`j?\t/\t/g' > ./data/streusle2.0/streusle.tags.train
-scripts/streusle2.0_scripts//sst2tags.py ./data/streusle2.0/streusle.sst.test | ${SEDCOMMAND} -r $'s/-`j?\t/\t/g' > ./data/streusle2.0/streusle.tags.test
+scripts/streusle2.0_scripts/sst2tags.py ./data/streusle2.0/streusle.sst.test | ${SEDCOMMAND} -r $'s/-`j?\t/\t/g' > ./data/streusle2.0/streusle.tags.test
+scripts/streusle2.0_scripts/sst2tags.py ./data/streusle2.0/streusle.sst.dev | ${SEDCOMMAND} -r $'s/-`j?\t/\t/g' > ./data/streusle2.0/streusle.tags.dev
 cut -f5 ./data/streusle2.0/streusle.tags.train | sort | uniq | ${SEDCOMMAND} '/^\s*$/d' > ./data/streusle2.0/streusle.tags.train.tagset

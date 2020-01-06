@@ -1,4 +1,4 @@
-1. Generate the train and test splits.
+1. Generate the train, test, and dev splits.
 
 ```
 ./scripts/streusle2.0_scripts/make_streusle_2_splits.sh
