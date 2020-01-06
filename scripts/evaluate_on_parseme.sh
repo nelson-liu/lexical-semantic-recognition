@@ -2,7 +2,7 @@
 
 set -e
 
-for modelpath in models/streusle*; do
+for modelpath in models/streusle_*; do
     modelname=$(basename ${modelpath})
     echo "Evaluating ${modelname}"
     allennlp predict models/${modelname}/model.tar.gz data/parseme_en/test.blind.jsonl \
