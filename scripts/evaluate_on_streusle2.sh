@@ -22,7 +22,9 @@ for modelpath in models/streusle2_*; do
         --output-path models/${modelname}/${modelname}_dev_predictions.jsonl.tags
 
     # Convert the .tags format file to a .sst file format file
-    rm models/${modelname}/${modelname}_dev_predictions.jsonl.tags.sst
+    if [ -f models/${modelname}/${modelname}_dev_predictions.jsonl.tags.sst ] ; then
+        rm models/${modelname}/${modelname}_dev_predictions.jsonl.tags.sst
+    fi
     python2 scripts/streusle2.0_scripts/tags2sst.py models/${modelname}/${modelname}_dev_predictions.jsonl.tags > models/${modelname}/${modelname}_dev_predictions.jsonl.tags.sst
 
     # Run mweval
