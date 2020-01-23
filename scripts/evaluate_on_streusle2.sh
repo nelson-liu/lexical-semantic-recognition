@@ -16,12 +16,13 @@ for modelpath in models/streusle2_*; do
         --batch-size 64
 
     # Convert the json predictions to the .tags format
-    python2 scripts/convert_predictions_to_streusle2_tags_format.py \
+    python scripts/convert_predictions_to_streusle2_tags_format.py \
         --predictions-path models/${modelname}/${modelname}_dev_predictions.jsonl \
         --test-data-path ./data/streusle2.0/streusle.tags.dev \
         --output-path models/${modelname}/${modelname}_dev_predictions.jsonl.tags
 
     # Convert the .tags format file to a .sst file format file
+    rm models/${modelname}/${modelname}_dev_predictions.jsonl.tags.sst
     python2 scripts/streusle2.0_scripts/tags2sst.py models/${modelname}/${modelname}_dev_predictions.jsonl.tags > models/${modelname}/${modelname}_dev_predictions.jsonl.tags.sst
 
     # Run mweval
