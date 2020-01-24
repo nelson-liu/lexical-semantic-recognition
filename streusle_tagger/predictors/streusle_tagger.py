@@ -1,3 +1,4 @@
+import json
 from overrides import overrides
 
 from allennlp.common.util import JsonDict
@@ -20,3 +21,10 @@ class StreusleTaggerPredictor(Predictor):
         return self._dataset_reader.text_to_instance(tokens=tokens,
                                                      upos_tags=gold_upos_tags,
                                                      lemmas=gold_lemmas)
+
+    def dump_line(self, outputs: JsonDict) -> str:
+        """
+        If you don't want your outputs in JSON-lines format
+        you can override this function to output them differently.
+        """
+        return json.dumps(outputs, ensure_ascii=False) + "\n"
