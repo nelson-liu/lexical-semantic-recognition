@@ -31,6 +31,7 @@ for modelpath in models/streusle2_*; do
     if [ -f models/${modelname}/${modelname}_dev_predictions.mweval_results ] ; then
         rm models/${modelname}/${modelname}_dev_predictions.mweval_results
     fi
+    echo "Running mweval"
     python2 scripts/streusle2.0_scripts/mweval.py \
         data/streusle2.0/streusle.tags.sst.dev \
         models/${modelname}/${modelname}_dev_predictions.jsonl.tags.sst > models/${modelname}/${modelname}_dev_predictions.mweval_results
@@ -38,6 +39,7 @@ for modelpath in models/streusle2_*; do
     if [ -f models/${modelname}/${modelname}dev_predictions.ssteval_results ] ; then
         rm models/${modelname}/${modelname}dev_predictions.ssteval_results
     fi
+    echo "Running ssteval"
     python2 scripts/streusle2.0_scripts/ssteval.py \
         data/streusle2.0/streusle.tags.sst.dev \
         models/${modelname}/${modelname}_dev_predictions.jsonl.tags.sst > models/${modelname}/${modelname}dev_predictions.ssteval_results
