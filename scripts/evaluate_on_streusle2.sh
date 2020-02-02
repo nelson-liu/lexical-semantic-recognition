@@ -51,7 +51,7 @@ for modelpath in models/streusle2_*; do
         --include-package streusle_tagger \
         --use-dataset-reader \
         --predictor streusle-tagger \
-        --cuda-testice 0 \
+        --cuda-device 0 \
         --batch-size 64
 
     # Convert the json predictions to the .tags format

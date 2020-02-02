@@ -26,7 +26,7 @@ for modelpath in models/streusle_*; do
         --include-package streusle_tagger \
         --use-dataset-reader \
         --predictor streusle-tagger \
-        --cuda-testice 0 \
+        --cuda-device 0 \
         --batch-size 64
 
     ./scripts/streusle_eval/streuseval.sh \
