@@ -1,5 +1,5 @@
 git+git://github.com/allenai/allennlp.git@770791a2045d960beaf4e64db867f51e6021afb6
-streusle==4.2
+git+git://github.com/nert-nlp/streusle.git@3d1ebb78dda8981ffbf48d2fbc3e56eddc4ecb6c
 transformers==2.1.1
 conllu
 torch==1.1.0
