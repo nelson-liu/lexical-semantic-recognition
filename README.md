@@ -1,4 +1,4 @@
-# streusle-tagger
+# Lexical Semantic Recognition Baselines
 
 [![Build Status](https://travis-ci.com/nelson-liu/streusle-tagger.svg?branch=master)](https://travis-ci.com/nelson-liu/streusle-tagger)
 [![codecov](https://codecov.io/gh/nelson-liu/streusle-tagger/branch/master/graph/badge.svg)](https://codecov.io/gh/nelson-liu/streusle-tagger)
@@ -18,20 +18,20 @@ run the code.
 2.  Change your directory to your clone of this repo.
 
     ```bash
-    cd streusle-tagger
+    cd lexical-semantic-recognition-baselines
     ```
 
 3.  Create a Conda environment with Python 3.6 .
 
     ```bash
-    conda create -n streusle-tagger python=3.6
+    conda create -n lsr python=3.6
     ```
 
 4.  Now activate the Conda environment. You will need to activate the Conda
     environment in each terminal in which you want to run code from this repo.
 
     ```bash
-    conda activate streusle-tagger
+    conda activate lsr
     ```
 
 5.  Install the required dependencies.
