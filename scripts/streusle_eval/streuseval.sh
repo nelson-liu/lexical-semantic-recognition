@@ -15,4 +15,5 @@ for PRED in "$@"; do
     grep -v '^#' "$PREFIX"conllulex | cut -d"	" -f4 > "$PREFIX"conllu.upos || continue
     paste "$PREFIX"conllu.upos ${REF%lex}.upos > "$PREFIX"conllu.upos.predicted_actual
     python -m streuseval "$REF" "$PREFIX"autoid.json > "$PREFIX"streusle_results
+    python -m streuseval "$REF" "$PREFIX"autoid.json -x > "$PREFIX"streusle_extended_results
 done
