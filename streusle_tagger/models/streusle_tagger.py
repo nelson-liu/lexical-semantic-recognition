@@ -53,6 +53,8 @@ class StreusleTagger(Model):
     use_lemma_constraints : ``bool``, optional (default=``True``)
         Whether to use lemma constraints. If True, model shoudl recieve lemmas as input.
         If this is true, then use_upos_constraints must be true as well.
+    use_mwe_constraints : ``bool``, optional (default=``True``)
+        Whether to use MWE constraints, based on the STREUSLE tagging scheme.
     train_with_constraints : ``bool``, optional (default=``True``)
         Whether to use the constraints during training, or only during testing.
     initializer : ``InitializerApplicator``, optional (default=``InitializerApplicator()``)
@@ -71,6 +73,7 @@ class StreusleTagger(Model):
                  dropout: Optional[float] = None,
                  use_upos_constraints: bool = True,
                  use_lemma_constraints: bool = True,
+                 use_mwe_constraints: bool = True,
                  train_with_constraints: bool = True,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
@@ -100,10 +103,10 @@ class StreusleTagger(Model):
                                                            self.num_tags))
         self._label_namespace = label_namespace
         labels = self.vocab.get_index_to_token_vocabulary(self._label_namespace)
-        constraints = streusle_allowed_transitions(labels)
 
         self.use_upos_constraints = use_upos_constraints
         self.use_lemma_constraints = use_lemma_constraints
+        self.use_mwe_constraints = use_mwe_constraints
 
         if self.use_lemma_constraints and not self.use_upos_constraints:
             raise ConfigurationError("If lemma constraints are applied, UPOS constraints must be applied as well.")
@@ -168,9 +171,11 @@ class StreusleTagger(Model):
                     self._lemma_upos_to_label_mask[(lemma, upos_tag)] = lemma_upos_label_mask
 
         self.include_start_end_transitions = include_start_end_transitions
+        constraints = streusle_allowed_transitions(labels)
         self.crf = ConditionalRandomField(
-                self.num_tags, constraints,
-                include_start_end_transitions=include_start_end_transitions)
+            self.num_tags,
+            constraints=constraints if use_mwe_constraints else None,
+            include_start_end_transitions=include_start_end_transitions)
 
         self.accuracy_metrics = {
                 "accuracy": CategoricalAccuracy(),
