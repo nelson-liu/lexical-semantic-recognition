@@ -5,8 +5,10 @@ import json
 
 from tqdm import tqdm
 
+
 def _is_divider(line: str) -> bool:
     return line.strip() == ""
+
 
 def get_vmwe_predictions_from_lextags(lextags: List[str]) -> List[List[str]]:
     vmwe_predictions = []
@@ -115,6 +117,7 @@ def get_vmwe_predictions_from_lextags(lextags: List[str]) -> List[List[str]]:
     assert len(vmwe_predictions) == len(lextags)
     return vmwe_predictions
 
+
 def main(predictions_path, test_data_path, output_path):
     print(f"Reading AllenNLP predictions from: {predictions_path}")
     predictions = []
@@ -154,6 +157,7 @@ def main(predictions_path, test_data_path, output_path):
     with open(output_path, "w") as output_file:
         for line in output_lines:
             output_file.write(line)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
