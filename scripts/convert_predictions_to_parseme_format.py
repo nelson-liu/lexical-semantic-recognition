@@ -20,7 +20,9 @@ def get_vmwe_predictions_from_lextags(lextags: List[str]) -> List[List[str]]:
             # Current token is not a MWE, so we just predict *
             vmwe_predictions.append("*")
             continue
-        if len(split_lextag) > 1 and not split_lextag[1].startswith("V."):
+        if (len(split_lextag) > 1 and
+                not split_lextag[1].startswith("V.") and
+                not split_lextag[1] == "V"):
             # This is not a verbal MWE, predict *
             vmwe_predictions.append("*")
             continue
@@ -57,7 +59,8 @@ def get_vmwe_predictions_from_lextags(lextags: List[str]) -> List[List[str]]:
                         break
                     if (lextags[idx].split("-")[0] == "B" and
                             len(lextags[idx].split("-")) > 1 and
-                            not lextags[idx].split("-")[1].startswith("V.")):
+                            not lextags[idx].split("-")[1].startswith("V.") and
+                            not lextags[idx].split("-")[1] == "V"):
                         # We found a B- tag that isn't a strong VMWE
                         break
                 if previous_vmwe_index != -1:
@@ -78,7 +81,7 @@ def get_vmwe_predictions_from_lextags(lextags: List[str]) -> List[List[str]]:
                     if lookahead_lextag.split("-")[0] == "i_":
                         is_strong_mwe = True
                         break
-                    elif lookahead_lextag.split("-")[0] == "i":
+                    elif lookahead_lextag.split("-")[0] == "i~":
                         is_strong_mwe = False
                         break
                     elif lookahead_lextag.split("-")[0] == "b":
@@ -102,7 +105,8 @@ def get_vmwe_predictions_from_lextags(lextags: List[str]) -> List[List[str]]:
                         break
                     if (lextags[idx].split("-")[0] == "B" and
                             len(lextags[idx].split("-")) > 1 and
-                            not lextags[idx].split("-")[1].startswith("V.")):
+                            not lextags[idx].split("-")[1].startswith("V.") and
+                            not lextags[idx].split("-")[1] == "V"):
                         # We found a B- tag that isn't a strong VMWE
                         break
                 if previous_vmwe_index != -1:
