@@ -107,9 +107,9 @@ def main(predictions_path, gold_path):
             f1 = 2 * precision * recall / (precision + recall)
         except ZeroDivisionError:
             f1 = 0
-        print(f"{lexcat} precision: {precision} ({tp} / {precision_denom})")
-        print(f"{lexcat} recall: {recall} ({tp} / {recall_denom})")
-        print(f"{lexcat} f1: {f1}")
+        print(f"{lexcat} precision: {100 * precision:.1f} ({tp} / {precision_denom})")
+        print(f"{lexcat} recall: {100 * recall:.1f} ({tp} / {recall_denom})")
+        print(f"{lexcat} f1: {100 * f1:.1f}")
 
 
 def parse_mwe_links(mwetags):
