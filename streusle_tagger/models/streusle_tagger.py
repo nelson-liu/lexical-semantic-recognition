@@ -173,9 +173,9 @@ class StreusleTagger(Model):
         self.include_start_end_transitions = include_start_end_transitions
         constraints = streusle_allowed_transitions(labels)
         self.crf = ConditionalRandomField(
-            self.num_tags,
-            constraints=constraints if use_mwe_constraints else None,
-            include_start_end_transitions=include_start_end_transitions)
+                self.num_tags,
+                constraints=constraints if use_mwe_constraints else None,
+                include_start_end_transitions=include_start_end_transitions)
 
         self.accuracy_metrics = {
                 "accuracy": CategoricalAccuracy(),
