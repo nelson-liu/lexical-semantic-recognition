@@ -1,9 +1,12 @@
-# Lexical Semantic Recognition Baselines
+# Lexical Semantic Recognition
 
-[![Build Status](https://travis-ci.com/nelson-liu/streusle-tagger.svg?branch=master)](https://travis-ci.com/nelson-liu/streusle-tagger)
+[![Build Status](https://travis-ci.com/nelson-liu/lexical-semantic-recognition.svg?branch=master)](https://travis-ci.com/nelson-liu/lexical-semantic-recognition)
 [![codecov](https://codecov.io/gh/nelson-liu/streusle-tagger/branch/master/graph/badge.svg)](https://codecov.io/gh/nelson-liu/streusle-tagger)
 
+## Pre-trained Models
 
+If you're interested in pre-trained models, system output, or evaluation script output for the models in the paper,
+you can download them from [Google Drive](https://drive.google.com/drive/folders/1k69S6i_H3TtaZmcF9D2tiOrgiOKqkI8l).
 
 ## Installation
 
