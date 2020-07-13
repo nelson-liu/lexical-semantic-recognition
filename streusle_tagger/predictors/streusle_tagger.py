@@ -13,7 +13,8 @@ class StreusleTaggerPredictor(Predictor):
     @overrides
     def _json_to_instance(self, json_dict: JsonDict) -> Instance:
         """
-        Expects JSON that looks like ``{"tokens": "[...]", "upos_tags": "[...]"}``.
+        Expects JSON that looks like:
+        ``{"tokens": "[...]", "upos_tags": "[...]", "lemmas": "[...]"}``.
         """
         tokens = json_dict["tokens"]
         gold_upos_tags = json_dict.get("upos_tags", None)
