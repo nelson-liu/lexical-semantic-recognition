@@ -4,9 +4,9 @@ from flaky import flaky
 from allennlp.common.testing import ModelTestCase
 
 
-class StreusleTaggerTest(ModelTestCase):
-    def setUp(self):
-        super().setUp()
+class TestStreusleTagger(ModelTestCase):
+    def setup_method(self):
+        super().setup_method()
         self.set_up_model('fixtures/streusle_tagger/experiment_all_constraints.json',
                           'fixtures/data/streusle.json')
 

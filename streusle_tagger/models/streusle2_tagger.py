@@ -187,7 +187,7 @@ class Streusle2Tagger(Model):
         return output
 
     @overrides
-    def decode(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def make_output_human_readable(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
         Converts the tag ids to the actual tags.
         ``output_dict["tags"]`` and ``output_dict["gold_tags"]`` are lists of lists of tag_ids,

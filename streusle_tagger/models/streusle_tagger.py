@@ -270,7 +270,7 @@ class StreusleTagger(Model):
                                                                        batch_lemmas=batch_lemmas)
 
         constrained_logits = util.replace_masked_values(logits,
-                                                        batch_upos_constraint_mask,
+                                                        batch_upos_constraint_mask.bool(),
                                                         -1e32)
 
         best_paths = self.crf.viterbi_tags(constrained_logits, mask)
@@ -307,7 +307,7 @@ class StreusleTagger(Model):
         return output
 
     @overrides
-    def decode(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def make_output_human_readable(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
         Converts the tag ids to the actual tags.
         ``output_dict["tags"]`` and ``output_dict["gold_tags"]`` are lists of lists of tag_ids,

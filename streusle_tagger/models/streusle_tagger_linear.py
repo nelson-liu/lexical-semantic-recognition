@@ -283,7 +283,7 @@ class StreusleTaggerLinear(Model):
         return output
 
     @overrides
-    def decode(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def make_output_human_readable(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
 
         ``output_dict["tags"]`` and ``output_dict["gold_tags"]`` are lists of lists of tag_ids,
