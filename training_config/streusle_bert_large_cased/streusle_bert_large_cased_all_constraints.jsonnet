@@ -50,7 +50,7 @@ local use_predicated_lemmas = false;
     },
     "checkpointer": {
       "num_serialized_models_to_keep": 1
-    }
+    },
     "num_epochs": 75,
     "grad_norm": 5.0,
     "patience": 25,
