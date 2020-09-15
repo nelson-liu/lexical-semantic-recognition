@@ -45,7 +45,7 @@ local use_predicted_lemmas = true;
         "type": "adam",
         "lr": 0.001,
         "parameter_groups": [
-            [["^text_field_embedder.*$"], {"requires_grad": False}]
+            [["^text_field_embedder.*$"], {"requires_grad": false}]
         ]
     },
     "checkpointer": {
