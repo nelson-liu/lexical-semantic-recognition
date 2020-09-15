@@ -43,6 +43,13 @@ run the code.
     pip install -r requirements.txt
     ```
 
+5.  Install the StanfordNLP models
+
+    ```bash
+    python -c "import stanfordnlp; stanfordnlp.download('en')"
+    ```
+
+
 You should now be able to test your installation with `py.test -v`.  Congratulations!
 
 ## Training a model
