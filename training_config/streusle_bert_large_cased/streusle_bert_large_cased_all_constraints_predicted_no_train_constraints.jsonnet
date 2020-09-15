@@ -3,8 +3,8 @@ local max_length = 256;
 local train_with_constraints = false;
 local use_upos_constraints = true;
 local use_lemma_constraints = true;
-local use_predicated_upos = true;
-local use_predicated_lemmas = true;
+local use_predicted_upos = true;
+local use_predicted_lemmas = true;
 {
   "dataset_reader": {
     "type": "streusle",
