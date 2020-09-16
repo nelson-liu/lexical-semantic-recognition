@@ -1,8 +1,9 @@
 local transformer_model = "bert-large-cased";
 local max_length = 256;
-local train_with_constraints = true;
+local train_with_constraints = false;
 local use_upos_constraints = true;
 local use_lemma_constraints = true;
+local use_mwe_constraints = false;
 local use_predicted_upos = true;
 local use_predicted_lemmas = true;
 {
@@ -26,6 +27,7 @@ local use_predicted_lemmas = true;
     "train_with_constraints": train_with_constraints,
     "use_upos_constraints": use_upos_constraints,
     "use_lemma_constraints": use_lemma_constraints,
+    "use_mwe_constraints": use_mwe_constraints,
     "text_field_embedder": {
       "token_embedders": {
         "tokens": {
