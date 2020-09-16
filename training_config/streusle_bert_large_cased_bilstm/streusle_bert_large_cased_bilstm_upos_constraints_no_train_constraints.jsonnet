@@ -1,54 +1,63 @@
+local transformer_model = "bert-large-cased";
+local max_length = 256;
+local train_with_constraints = false;
+local use_upos_constraints = true;
+local use_lemma_constraints = false;
+local use_predicted_upos = false;
+local use_predicted_lemmas = false;
 {
   "dataset_reader": {
     "type": "streusle",
+    "use_predicted_upos": use_predicted_upos,
+    "use_predicted_lemmas": use_predicted_lemmas,
     "token_indexers": {
-        "bert": {
-            "type": "bert-pretrained",
-            "pretrained_model": "bert-large-cased"
-        }
-    }
+      "tokens": {
+        "type": "pretrained_transformer_mismatched",
+        "model_name": transformer_model,
+        "max_length": max_length
+      },
+    },
   },
   "train_data_path": "data/streusle/streusle.ud_train.json",
   "validation_data_path": "data/streusle/streusle.ud_dev.json",
   "test_data_path": "data/streusle/streusle.ud_test.json",
   "model": {
     "type": "streusle_tagger",
-    "train_with_constraints": false,
-    "use_upos_constraints": true,
-    "use_lemma_constraints": false,
+    "train_with_constraints": train_with_constraints,
+    "use_upos_constraints": use_upos_constraints,
+    "use_lemma_constraints": use_lemma_constraints,
     "text_field_embedder": {
-        "allow_unmatched_keys": true,
-        "embedder_to_indexer_map": {
-            "bert": ["bert", "bert-offsets"]
-        },
-        "token_embedders": {
-            "bert": {
-                "type": "bert-pretrained",
-                "pretrained_model": "bert-large-cased",
-                "top_layer_only": false,
-                "requires_grad": false
-            }
+      "token_embedders": {
+        "tokens": {
+            "type": "pretrained_transformer_mismatched",
+            "model_name": transformer_model,
+            "max_length": max_length
         }
+      }
     },
     "encoder": {
-        "type": "lstm",
-        "bidirectional": true,
-        "input_size": 1024,
-        "hidden_size": 256,
-        "num_layers": 2
+      "type": "lstm",
+      "bidirectional": true,
+      "input_size": 1024,
+      "hidden_size": 256,
+      "num_layers": 2
     }
   },
-  "iterator": {
-    "type": "basic",
+  "data_loader": {
     "batch_size": 64
   },
   "trainer": {
     "validation_metric": "+accuracy",
     "optimizer": {
         "type": "adam",
-        "lr": 0.001
+        "lr": 0.001,
+        "parameter_groups": [
+            [["^text_field_embedder.*$"], {"requires_grad": false}]
+        ]
     },
-    "num_serialized_models_to_keep": 1,
+    "checkpointer": {
+      "num_serialized_models_to_keep": 1
+    },
     "num_epochs": 75,
     "grad_norm": 5.0,
     "patience": 25,
