@@ -2,7 +2,7 @@ allennlp==1.1.0
 streusle==4.3
 conllu
 torch==1.6.0
-git+git://github.com/nelson-liu/stanfordnlp.git@3dad3397b076450ea929af6515d4acd140ee3a7c
+stanza==1.1.1
 nltk
 
 # Run tests

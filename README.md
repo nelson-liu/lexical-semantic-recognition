@@ -43,10 +43,10 @@ run the code.
     pip install -r requirements.txt
     ```
 
-5.  Install the StanfordNLP models
+5.  Install the Stanza models
 
     ```bash
-    python -c "import stanfordnlp; stanfordnlp.download('en')"
+    python -c "import stanza; stanza.download('en')"
     ```
 
 

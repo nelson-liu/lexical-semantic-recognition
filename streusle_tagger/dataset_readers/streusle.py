@@ -9,7 +9,7 @@ from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
 from allennlp.data.tokenizers import Token
 from overrides import overrides
-import stanfordnlp
+import stanza
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -30,10 +30,10 @@ class StreusleDatasetReader(DatasetReader):
     label_namespace: ``str``, optional (default=``labels``)
         Specifies the namespace for the chosen ``tag_label``.
     use_predicted_upos: ``bool``, optional (default=``False``)
-        Use predicted UPOS tags from StanfordNLP instead of the gold
+        Use predicted UPOS tags from Stanza instead of the gold
         UPOS tags in the STREUSLE data.
     use_predicted_lemmas: ``bool``, optional (default=``False``)
-        Use predicted lemmas from StanfordNLP instead of the gold
+        Use predicted lemmas from Stanza instead of the gold
         lemmas in the STREUSLE data.
     """
     def __init__(self,
@@ -89,12 +89,12 @@ class StreusleDatasetReader(DatasetReader):
             The tokens in a given sentence.
         upos_tags : ``List[str]``, optional, (default = None).
             The upos_tags for the tokens in a given sentence. If None,
-            we use StanfordNLP to predict them. If self._use_predicted_upos,
-            we use StanfordNLP to predict them (ignoring any provided here).
+            we use Stanza to predict them. If self._use_predicted_upos,
+            we use Stanza to predict them (ignoring any provided here).
         lemmas : ``List[str]``, optional, (default = None).
             The lemmas for the tokens in a given sentence. If None,
-            we use StanfordNLP to predict them. If self._use_predicted_lemmas,
-            we use StanfordNLP to predict them (ignoring any provided here).
+            we use Stanza to predict them. If self._use_predicted_lemmas,
+            we use Stanza to predict them (ignoring any provided here).
         streusle_lextags : ``List[str]``, optional, (default = None).
             The STREUSLE lextags associated with a token.
 
@@ -114,7 +114,7 @@ class StreusleDatasetReader(DatasetReader):
         if self._use_predicted_upos or upos_tags is None:
             if self._upos_predictor is None:
                 # Initialize UPOS predictor.
-                self._upos_predictor = stanfordnlp.Pipeline(processors="tokenize,pos",
+                self._upos_predictor = stanza.Pipeline(processors="tokenize,pos",
                                                             tokenize_pretokenized=True)
             doc = self._upos_predictor([tokens])
             upos_tags = [word.upos for sent in doc.sentences for word in sent.words]
@@ -125,7 +125,7 @@ class StreusleDatasetReader(DatasetReader):
         if self._use_predicted_lemmas or lemmas is None:
             if self._lemma_predictor is None:
                 # Initialize LEMMAS predictor.
-                self._lemma_predictor = stanfordnlp.Pipeline(processors="tokenize,lemma",
+                self._lemma_predictor = stanza.Pipeline(processors="tokenize,lemma",
                                                              tokenize_pretokenized=True)
             doc = self._lemma_predictor([tokens])
             lemmas = [word.lemma for sent in doc.sentences for word in sent.words]
