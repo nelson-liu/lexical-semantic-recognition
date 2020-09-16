@@ -1,4 +1,4 @@
-local train_with_constraints = false;
+local train_with_constraints = true;
 local use_upos_constraints = true;
 local use_lemma_constraints = true;
 local use_predicted_upos = false;
