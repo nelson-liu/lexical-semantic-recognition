@@ -1,6 +1,6 @@
-local train_with_constraints = false;
-local use_upos_constraints = true;
-local use_lemma_constraints = true;
+local train_with_constraints = true;
+local use_upos_constraints = false;
+local use_lemma_constraints = false;
 local use_predicted_upos = false;
 local use_predicted_lemmas = false;
 {

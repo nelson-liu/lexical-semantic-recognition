@@ -1,8 +1,9 @@
 local train_with_constraints = false;
 local use_upos_constraints = true;
 local use_lemma_constraints = true;
-local use_predicted_upos = false;
-local use_predicted_lemmas = false;
+local use_mwe_constraints = false;
+local use_predicted_upos = true;
+local use_predicted_lemmas = true;
 {
   "dataset_reader": {
     "type": "streusle",
@@ -26,6 +27,7 @@ local use_predicted_lemmas = false;
     "train_with_constraints": train_with_constraints,
     "use_upos_constraints": use_upos_constraints,
     "use_lemma_constraints": use_lemma_constraints,
+    "use_mwe_constraints": use_mwe_constraints,
     "text_field_embedder": {
         "token_embedders": {
             "tokens": {
