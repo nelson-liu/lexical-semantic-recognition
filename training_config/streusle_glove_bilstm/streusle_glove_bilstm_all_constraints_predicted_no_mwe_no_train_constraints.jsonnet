@@ -55,7 +55,7 @@ local use_predicted_lemmas = true;
     "encoder": {
       "type": "lstm",
       "bidirectional": true,
-      "input_size": 1024,
+      "input_size": 500,
       "hidden_size": 256,
       "num_layers": 2
     }
