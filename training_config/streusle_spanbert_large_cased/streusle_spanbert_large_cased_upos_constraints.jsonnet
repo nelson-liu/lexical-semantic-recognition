@@ -1,4 +1,4 @@
-local transformer_model = "spanbert-large-cased";
+local transformer_model = "SpanBERT/spanbert-large-cased";
 local max_length = 256;
 local train_with_constraints = true;
 local use_upos_constraints = true;
