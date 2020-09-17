@@ -255,7 +255,7 @@ class StreusleTaggerLinear(Model):
             batch_upos_constraint_mask = self.get_upos_constraint_mask(batch_upos_tags=batch_upos_tags,
                                                                        batch_lemmas=batch_lemmas)
         logits = util.replace_masked_values(logits,
-                                            batch_upos_constraint_mask,
+                                            batch_upos_constraint_mask.bool(),
                                             -1e32)
         class_probabilities = F.softmax(logits, dim=-1).view(
                 [batch_size, sequence_length, self.num_tags]
