@@ -68,7 +68,7 @@ class TestStreusleDatasetReader():
         assert [token.text for token in fields["tokens"]] == [
                 'Have', 'a', 'real', 'mechanic', 'check', 'before', 'you', 'buy', '!!!!']
         assert fields["metadata"]["upos_tags"] == [
-                'VERB', 'DET', 'ADJ', 'ADJ', 'NOUN', 'SCONJ', 'PRON', 'VERB', 'PUNCT']
+            'VERB', 'DET', 'ADJ', 'NOUN', 'NOUN', 'SCONJ', 'PRON', 'VERB', 'PUNCT']
         assert fields["tags"].labels == ["B-V-v.social", "o-DET", "o-ADJ",
                                          "o-N-n.PERSON", "I~-V-v.cognition",
                                          "O-P-p.Time", "O-PRON", "O-V-v.possession",
