@@ -291,33 +291,17 @@ class StreusleTaggerLinear(Model):
         """
         mask = output_dict.pop("mask")
         lengths = util.get_lengths_from_binary_sequence_mask(mask)
-        # Do a position-wise argmax over the class probabilities to recover the tags.
-        all_predictions = output_dict["class_probabilities"]
-        all_predictions = all_predictions.cpu().data.numpy()
-        if all_predictions.ndim == 3:
-            predictions_list = [all_predictions[i] for i in range(all_predictions.shape[0])]
-        else:
-            predictions_list = [all_predictions]
-        all_tags = []
-        for predictions, length in zip(predictions_list, lengths):
-            argmax_indices = numpy.argmax(predictions, axis=-1)
-            tags = [
-                    self.vocab.get_token_from_index(x, namespace=self.label_namespace)
-                    for x in argmax_indices[:length]
-            ]
-            all_tags.append(tags)
-        output_dict["tags"] = all_tags
+        for key in "tags", "gold_tags":
+            tags = output_dict.pop(key, None)
+            if tags is not None:
+                # TODO (nfliu): figure out why this is sometimes a tensor and sometimes a list.
+                if torch.is_tensor(tags):
+                    tags = tags.cpu().detach().numpy()
+                output_dict[key] = [
+                        [self.vocab.get_token_from_index(tag, namespace=self.label_namespace)
+                         for tag in instance_tags[:length]]
+                        for instance_tags, length in zip(tags, lengths)]
 
-        # Converts the tag ids to the actual tags.
-        gold_tags = output_dict.pop("gold_tags", None)
-        if tags is not None:
-            # TODO (nfliu): figure out why this is sometimes a tensor and sometimes a list.
-            if torch.is_tensor(gold_tags):
-                gold_tags = gold_tags.cpu().detach().numpy()
-            output_dict["gold_tags"] = [
-                    [self.vocab.get_token_from_index(gold_tag, namespace=self.label_namespace)
-                     for gold_tag in instance_gold_tags[:length]]
-                    for instance_gold_tags, length in zip(gold_tags, lengths)]
         return output_dict
 
     @overrides
