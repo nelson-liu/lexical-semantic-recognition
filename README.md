@@ -3,6 +3,9 @@
 [![Build Status](https://travis-ci.com/nelson-liu/lexical-semantic-recognition.svg?branch=master)](https://travis-ci.com/nelson-liu/lexical-semantic-recognition)
 [![codecov](https://codecov.io/gh/nelson-liu/streusle-tagger/branch/master/graph/badge.svg)](https://codecov.io/gh/nelson-liu/streusle-tagger)
 
+Code accompanying [_Lexical Semantic Recognition_](https://arxiv.org/abs/2004.15008), by Nelson F. Liu, Daniel Hershcovich, Michael Kranzlein, and Nathan Schneider.
+
+
 ## Pre-trained Models
 
 If you're interested in pre-trained models, system output, or evaluation script output for the models in the paper,
